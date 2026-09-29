@@ -1,15 +1,15 @@
 # Modello base (M2)
 
-| Voce | Valore |
-| --- | --- |
-| File | `apps/web/public/models/cards-baseline.onnx` (10,6 MB, FP32, opset 17) |
-| Architettura | YOLO11n, 2,6 M parametri, ingresso 1×3×640×640, uscita 1×56×8400 (4 box + 52 classi, senza NMS) |
-| Origine | [shrimantasatpati/yolov11_playing_cards_detection](https://huggingface.co/shrimantasatpati/yolov11_playing_cards_detection), `weights/best.pt` |
-| Licenza dichiarata | MIT (pesi). Addestrato con Ultralytics: vedi la nota sulla licenza in `docs/decisions.md` (D12) |
-| Dataset | Roboflow "Playing-Cards" v4 (Augmented Startups), immagini sintetiche di carte su sfondi vari |
-| Regione annotata | **indice d'angolo** (valore + seme), come chiede CLAUDE.md §7 |
-| Classi | 52 carte, **nessun jolly** (`packages/vision/src/labels.ts`) |
-| Metriche dichiarate (val sintetica) | mAP50 0,995, mAP50-95 0,823 dopo 30 epoche |
+| Voce                                | Valore                                                                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| File                                | `apps/web/public/models/cards-baseline.onnx` (10,6 MB, FP32, opset 17)                                                                         |
+| Architettura                        | YOLO11n, 2,6 M parametri, ingresso 1×3×640×640, uscita 1×56×8400 (4 box + 52 classi, senza NMS)                                                |
+| Origine                             | [shrimantasatpati/yolov11_playing_cards_detection](https://huggingface.co/shrimantasatpati/yolov11_playing_cards_detection), `weights/best.pt` |
+| Licenza dichiarata                  | MIT (pesi). Addestrato con Ultralytics: vedi la nota sulla licenza in `docs/decisions.md` (D12)                                                |
+| Dataset                             | Roboflow "Playing-Cards" v4 (Augmented Startups), immagini sintetiche di carte su sfondi vari                                                  |
+| Regione annotata                    | **indice d'angolo** (valore + seme), come chiede CLAUDE.md §7                                                                                  |
+| Classi                              | 52 carte, **nessun jolly** (`packages/vision/src/labels.ts`)                                                                                   |
+| Metriche dichiarate (val sintetica) | mAP50 0,995, mAP50-95 0,823 dopo 30 epoche                                                                                                     |
 
 ## Comportamento su foto reali
 

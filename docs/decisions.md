@@ -72,3 +72,42 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
   - **Fasce stimate, da verificare:** da 14–6 a 19–1, a intervalli regolari di 275 punti (625, 900, 1175, 1450, 1725, 2000).
   - **In app:** il nome della tabella dice che va verificata. Una tabella salvata nelle impostazioni la sostituisce, e con "Ripristina la predefinita" si torna a questa.
 - **Alternative scartate:** le fasce 14–19 trovate in una fonte (355–500, 505–650, …, 1255–1500, con 20–0 oltre 1500), perché incomplete (mancano 16–18) e incompatibili con il 20–0 oltre 2000.
+
+## D11. Modello base di M2: YOLO11n "Playing-Cards" da Hugging Face
+
+- **Contesto:** §7.1 chiede di partire da un modello pubblico, verificando licenza e regione annotata.
+- **Decisione:** `shrimantasatpati/yolov11_playing_cards_detection`.
+  - Pesi MIT, YOLO11n, addestrato sul dataset Roboflow "Playing-Cards" citato nella specifica.
+  - Annota l'indice d'angolo e ha 52 classi, senza jolly.
+  - Esportato in ONNX opset 17, FP32, 10,6 MB (sotto i 15 MB). Nessuna quantizzazione per ora: FP16/INT8 si valuta in M3 insieme alla precisione.
+  - Dettagli in `ml/baseline/MODEL.md`.
+- **Alternative scartate:**
+  - `mustafakemal0146/playing-cards-yolov8`: YOLOv8n, stesso dataset. `qcxiong/playing-cards-yolov8` ne è una copia identica.
+  - `koolguy06/playing-cards`: YOLOv8l da 88 MB, troppo grande per il telefono.
+- **Parità Python/browser:** `reference.json` contiene i rilevamenti ottenuti con onnxruntime in Python. L'E2E verifica che il browser trovi le stesse carte con punteggi entro 0,05.
+
+## D12. Licenza Ultralytics (AGPL-3.0): da decidere [UMANO]
+
+- **Contesto:** la specifica sceglie YOLO di Ultralytics (§2). La libreria è AGPL-3.0, e Ultralytics considera AGPL anche i modelli addestrati con la sua libreria, salvo licenza Enterprise. Questo vale anche per il modello proprio di M3. I pesi di D11 dichiarano MIT, ma sono addestrati con Ultralytics.
+- **Implicazione:** se l'app viene distribuita pubblicamente, il modo più semplice di rispettare l'AGPL è rendere pubblico il codice sorgente dell'app con licenza AGPL. Per un uso privato del gruppo il problema è minore.
+- **Alternative possibili, se il codice deve restare chiuso:** un detector con licenza permissiva, per esempio RT-DETR di altre implementazioni o YOLOX (Apache-2.0), addestrato in M3 con lo stesso dataset sintetico. `CardRecognizer` rende il cambio indolore.
+
+## D13. onnxruntime-web: bundle WebGPU + WASM (M2)
+
+- **Decisione:**
+  - Il worker importa `onnxruntime-web/webgpu`: prova WebGPU e ripiega su WASM, multi-thread con cross-origin isolation, al massimo 4 thread.
+  - I file `.wasm`/`.mjs` sono referenziati con `?url`, così Vite li emette con hash.
+  - `optimizeDeps.exclude` e `worker.format: 'es'` sono impostati in `vite.config.ts`.
+- **Costo:** il WASM con supporto WebGPU (JSEP) è 28 MB, 6,8 MB compressi. Il build emette anche la variante `asyncify`, inutile. Da escludere dalla cache del service worker in M5, o da eliminare con un bundle diverso.
+- **Alternative scartate:** `onnxruntime-web` solo WASM (circa 11 MB): più leggero ma senza WebGPU, che sui telefoni recenti è la via più veloce.
+
+## D14. Tempi e preparazione del modello (M2)
+
+- **Misure:** foto 2400×1800 in 20 riquadri, in Chromium headless su 4 core, WASM×4:
+  - prima esecuzione a freddo: 5,7 s, di cui circa 1,8 s per creare la sessione;
+  - a caldo: 2,7–3,4 s, circa 125 ms per riquadro.
+- **Decisione:** la schermata della smazzata prepara il modello appena si apre, con `warmUp()` e un riquadro vuoto, e ne mostra lo stato. La prima foto non paga l'avvio.
+- **Test:** il test dei tempi gira in un progetto Playwright separato (`perf`), dopo gli altri, per non misurare la contesa di CPU.
+- **Rischio:**
+  - Una foto 4:3 da 12 MP viene ridotta a 3000×2250, cioè 30 riquadri: su WASM in un telefono di fascia media potrebbe superare i 5 s.
+  - Leve possibili, da valutare con le misure sui telefoni reali [UMANO]: WebGPU, lato lungo più basso per le foto di un solo gioco, modello FP16.

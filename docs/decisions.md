@@ -32,3 +32,27 @@ Ogni scelta tecnica non banale: contesto, decisione, alternative scartate.
 
 - **Contesto:** manifest, service worker e cache del modello sono in §9 e M5.
 - **Decisione:** nessun plugin PWA in M0; si introduce quando l'app ha contenuto da mettere in cache (al più tardi in M5, eventualmente prima per l'offline in M1).
+
+## D6. Interpretazioni del regolamento da confermare (M1)
+
+Il motore non inventa regole: dove la specifica non è esplicita ho scelto un comportamento, reso configurabile quando possibile, e l'ho elencato in `PROGRESS.md` come domanda aperta.
+
+- **Semipulito:** almeno 7 carte naturali consecutive, con la matta a un'estremità della scala o aggiunta a un tris. Una matta dentro la scala rende il burraco sporco. Il semipulito si disattiva con `burracoSemipulito: null`.
+- **Pinella:** vale sempre 20, anche quando è nella sua posizione naturale. Lì conta come carta normale solo per la classificazione del burraco.
+- **Scala:** va dall'asso basso all'asso alto, 14 carte al massimo; non gira (K-A-2 non è valida). Una matta che allunga la scala va in cima, oppure in fondo se in cima c'è già l'asso: per il punteggio le due estremità sono equivalenti.
+- **Tris di pinelle:** non ammesso di default (`allowSetOfTwos`).
+- **Obiettivo 2005:** vince chi è in testa dopo la smazzata in cui supera l'obiettivo. In caso di parità in testa si continua.
+- **Victory Point:** le smazzate si raggruppano in turni di `handsPerRound` (4). Ogni turno completo si converte in VP con la tabella, sulla differenza assoluta di punti. Con la differenza a 0 ciascuna squadra prende la media della riga. Il numero di turni è libero (`rounds: null`) finché i giocatori non chiudono la partita. I VP valgono solo per 2 squadre.
+- **1v1v1 "con divisione dei punti":** non so che cosa significhi. Per ora ogni giocatore è una squadra e ha il suo punteggio.
+- **Burraco reale/super:** disattivati, non implementati.
+
+## D7. Routing via hash e nessuna libreria di routing (M1)
+
+- **Contesto:** quattro schermate, app statica su Cloudflare Pages, deve funzionare offline.
+- **Decisione:** un router minimo su `location.hash` (`#/partita/<id>/smazzata`). Non richiede regole di rewrite sull'hosting e il tasto indietro funziona.
+- **Alternative scartate:** react-router (dipendenza in più per quattro rotte).
+
+## D8. Default dell'inserimento smazzata (M1)
+
+- "Pozzetto preso" parte attivo, perché è il caso più comune. "Ha chiuso" attiva automaticamente anche "pozzetto preso", ma si può comunque cambiare.
+- Il selettore di carte tiene il seme selezionato: per una scala basta toccare i valori.

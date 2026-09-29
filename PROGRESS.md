@@ -31,6 +31,9 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 
 - **Pubblicata** (2026-09-29) su <https://burracocounter.rontinim.workers.dev>: Cloudflare Workers con asset statici, build a ogni push su `claude/new-session-b89i50` (D18).
 
+- **Si apre dal telefono** (2026-09-29): confermato dal gruppo. Aggiunti messaggio di caricamento e schermata di errore al posto della pagina bianca.
+- **M3, preparazione**: istruzioni e checklist per le foto del mazzo in `ml/photos/ISTRUZIONI.md`, controllo completezza con `ml/photos/check_deck.py`.
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
@@ -40,13 +43,20 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 1. **Esito del test sui telefoni** (iPhone e Android):
    - l'installazione funziona;
    - l'app funziona offline;
-   - `crossOriginIsolated` è attivo (se il riconoscimento dice "wasm×1" invece di "wasm×4", gli header non arrivano);
-   - tempo del riconoscimento su una foto.
-2. **Foto** (in arrivo): marca del mazzo, foto delle singole carte jolly compresi, 5–10 foto di fine smazzata.
-3. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+   - "wasm×N" con N > 1 nella revisione della foto;
+   - tempo del riconoscimento;
+   - eventuali problemi.
+2. **Foto del mazzo per M3** (fine-tuning, da ricordare): seguire `ml/photos/ISTRUZIONI.md`. Servono 52 carte + jolly, retro e scatola.
+3. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando.
+4. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+5. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
 
 ## Prossimi passi
 
-1. Raccogliere i risultati del test sui telefoni (D14, D15).
-2. Con le foto: **M3**. Istruzioni per le foto del mazzo, generatore sintetico, notebook di training, golden set.
+1. Raccogliere i risultati del test sui telefoni (D14, D15) e correggere i problemi.
+2. **M3** appena arrivano le foto del mazzo:
+   - ritaglio automatico degli angoli;
+   - generatore sintetico (`ml/generator`), 20–50 mila immagini con ventagli e doppio mazzo;
+   - notebook Colab che confronta YOLO11n e YOLO11s, compreso il jolly;
+   - export ONNX e valutazione sul golden set (soglia ≥97% di carte corrette).
 3. Poi **M4**: deduplica degli angoli e raggruppamento in giochi.

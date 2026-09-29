@@ -3,6 +3,6 @@ import { VISION_PACKAGE } from './index';
 
 describe('vision package', () => {
   it('is wired into the workspace', () => {
-    expect(VISION_PACKAGE).toBe('@burraco-scan/vision');
+    expect(VISION_PACKAGE).toBe('@burracount/vision');
   });
 });

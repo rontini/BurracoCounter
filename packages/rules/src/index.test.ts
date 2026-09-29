@@ -3,6 +3,6 @@ import { RULES_PACKAGE } from './index';
 
 describe('rules package', () => {
   it('is wired into the workspace', () => {
-    expect(RULES_PACKAGE).toBe('@burraco-scan/rules');
+    expect(RULES_PACKAGE).toBe('@burracount/rules');
   });
 });

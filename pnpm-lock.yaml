@@ -41,7 +41,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@burraco-scan/rules':
+      '@burracount/rules':
         specifier: workspace:*
         version: link:../../packages/rules
       react:
@@ -83,7 +83,7 @@ importers:
 
   packages/vision:
     dependencies:
-      '@burraco-scan/rules':
+      '@burracount/rules':
         specifier: workspace:*
         version: link:../rules
 

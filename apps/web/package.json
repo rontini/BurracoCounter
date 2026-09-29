@@ -1,5 +1,5 @@
 {
-  "name": "@burraco-scan/web",
+  "name": "@burracount/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@burraco-scan/rules": "workspace:*",
+    "@burracount/rules": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

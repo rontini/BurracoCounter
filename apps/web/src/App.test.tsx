@@ -5,6 +5,6 @@ import { App } from './App';
 describe('App', () => {
   it('shows the app title', () => {
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'BurracoScan' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'BurraCount' })).toBeInTheDocument();
   });
 });

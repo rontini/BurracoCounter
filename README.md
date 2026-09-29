@@ -1,4 +1,4 @@
-# BurracoScan
+# BurraCount
 
 Web app (PWA) che calcola i punti del burraco da una foto delle carte. Funziona offline, sul dispositivo, senza account.
 
@@ -10,7 +10,7 @@ Requisiti: Node ≥ 22 e pnpm 10 (`corepack enable`).
 
 ```sh
 pnpm install
-pnpm --filter @burraco-scan/web dev   # app in sviluppo
+pnpm --filter @burracount/web dev   # app in sviluppo
 pnpm check                            # format, lint, typecheck, unit test
 pnpm test:coverage                    # unit test con copertura
 pnpm e2e                              # test Playwright (build + preview)

@@ -1,5 +1,5 @@
 {
-  "name": "burraco-scan",
+  "name": "burracount",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.0",
@@ -14,7 +14,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "e2e": "pnpm --filter @burraco-scan/web e2e",
+    "e2e": "pnpm --filter @burracount/web e2e",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
   },
   "devDependencies": {

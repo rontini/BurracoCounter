@@ -14,5 +14,7 @@ export interface RecognitionResult {
  */
 export interface CardRecognizer {
   recognize(image: Blob, photoId: string): Promise<RecognitionResult>;
+  /** Carica il modello in anticipo, così la prima foto non paga l'avvio. */
+  warmUp(): Promise<void>;
   dispose(): void;
 }

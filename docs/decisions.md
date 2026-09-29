@@ -62,3 +62,13 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 - **Contesto:** il gruppo usa la tabella VP "standard". Le fonti raggiungibili riportano solo le prime fasce (0–50 → 10–10, 55–150 → 11–9, 155–250 → 12–8, 255–350 → 13–7) e non concordano sull'ultima (20–0 oltre 1500 o oltre 2000). Nel codice di gara FIBUR la tabella dipende anche dal numero di mani. Il documento ufficiale non è raggiungibile dall'ambiente di sviluppo.
 - **Decisione:** nessuna tabella precaricata, per non inventarla. Le impostazioni hanno un editor della tabella (e l'import/export in JSON) salvato in IndexedDB; ogni nuova partita a VP la usa come default. Una partita già iniziata senza tabella mostra un avviso con il pulsante per applicare quella salvata.
 - **Alternative scartate:** precaricare una tabella incompleta o non verificata.
+
+## D10. Tabella VP predefinita con fasce in parte stimate (M1)
+
+- **Contesto:** il gruppo ha chiesto comunque un default, con 20–0 sopra i 2000 punti di differenza (vedi D9 per le fonti).
+- **Decisione:** `DEFAULT_VP_TABLE` in `packages/rules`, usata da `DEFAULT_RULESET`.
+  - **Fasce standard (dalle fonti):** 0–50 → 10–10, fino a 150 → 11–9, fino a 250 → 12–8, fino a 350 → 13–7.
+  - **Fascia indicata dal gruppo:** oltre 2000 → 20–0.
+  - **Fasce stimate, da verificare:** da 14–6 a 19–1, a intervalli regolari di 275 punti (625, 900, 1175, 1450, 1725, 2000).
+  - **In app:** il nome della tabella dice che va verificata. Una tabella salvata nelle impostazioni la sostituisce, e con "Ripristina la predefinita" si torna a questa.
+- **Alternative scartate:** le fasce 14–19 trovate in una fonte (355–500, 505–650, …, 1255–1500, con 20–0 oltre 1500), perché incomplete (mancano 16–18) e incompatibili con il 20–0 oltre 2000.

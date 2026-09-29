@@ -13,15 +13,18 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 
 - **Risposte sul regolamento** (2026-09-29): semipulito come in D6, pinella sempre 20, niente tris di pinelle, una partita = 4 smazzate a VP.
 - **Impostazioni**: editor della tabella VP (con import/export JSON), usata come default nelle nuove partite; avviso nelle partite senza tabella.
+- **Tabella VP predefinita** (D10): fasce standard fino a 13–7, 20–0 oltre 2000, fasce 14–19 stimate.
 
 ## In corso
 
-- Nessuna attività aperta su M1: resta solo la tabella VP da inserire nell'app.
+- Nessuna attività aperta su M1.
 
 ## Bloccato / domande aperte [UMANO]
 
-1. **Tabella VP standard**: da inserire in Impostazioni (vedi D9). Non è bloccante: senza tabella il tabellone mostra la differenza punti.
-2. **Marca del mazzo**: da verificare prima di M3.
+1. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+2. **Rete dell'ambiente cloud**: `huggingface.co` e `universe.roboflow.com` sono bloccati. Servono per scaricare il modello base di M2: vanno aggiunti ai domini consentiti dell'ambiente, oppure il file ONNX del modello va caricato nel repository.
+3. **Foto di prova per M2**: 5–10 foto reali di fine smazzata (giochi calati e carte in mano), fatte con il telefono come le fareste giocando.
+4. **Marca del mazzo** e foto delle singole carte: servono per M3.
 
 ## Prossimi passi
 

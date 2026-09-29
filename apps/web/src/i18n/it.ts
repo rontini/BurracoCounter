@@ -135,6 +135,17 @@ export const it = {
   'burraco.semipulito': 'semipulito',
   'burraco.sporco': 'sporco',
 
+  'pwa.update': 'È disponibile una nuova versione di BurraCount.',
+  'pwa.updateNow': 'Aggiorna',
+  'pwa.later': 'Più tardi',
+  'pwa.install': 'Installa app',
+  'pwa.installText': "Installa BurraCount: si apre come un'app e funziona anche senza rete.",
+  'pwa.iosText': "Installa BurraCount sull'iPhone per usarla come un'app, anche offline:",
+  'pwa.iosStep1': 'tocca Condividi (il quadrato con la freccia in su)',
+  'pwa.iosStep2': 'scegli «Aggiungi alla schermata Home»',
+  'pwa.iosStep3': 'conferma con «Aggiungi»',
+  'pwa.gotIt': 'Ho capito',
+
   'photo.camera': 'Scatta foto',
   'photo.loading': 'Preparazione del riconoscimento…',
   'photo.ready': 'Riconoscimento pronto',

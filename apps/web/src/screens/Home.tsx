@@ -2,6 +2,7 @@ import { scoreMatch } from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState, type ChangeEvent } from 'react';
 import { db, exportMatches, importMatches, parseMatchesExport, type StoredMatch } from '../db';
+import { InstallPrompt } from '../components/InstallPrompt';
 import { t } from '../i18n';
 import { download } from '../lib/download';
 import { href } from '../lib/router';
@@ -48,6 +49,8 @@ export function Home() {
         <h1>{t('appName')}</h1>
         <p className="muted">{t('tagline')}</p>
       </header>
+
+      <InstallPrompt />
 
       <a className="btn primary big" href={href({ name: 'new' })}>
         {t('home.newMatch')}

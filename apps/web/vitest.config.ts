@@ -3,6 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineProject({
   plugins: [react()],
+  resolve: {
+    alias: {
+      'virtual:pwa-register/react': new URL('./src/test-pwa-stub.ts', import.meta.url).pathname,
+    },
+  },
   test: {
     name: 'web',
     environment: 'jsdom',

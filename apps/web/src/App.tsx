@@ -1,3 +1,4 @@
+import { UpdatePrompt } from './components/UpdatePrompt';
 import { useRoute } from './lib/router';
 import { HandEntry } from './screens/HandEntry';
 import { Home } from './screens/Home';
@@ -14,6 +15,7 @@ export function App() {
       {route.name === 'settings' && <Settings />}
       {route.name === 'match' && <MatchView id={route.id} />}
       {route.name === 'hand' && <HandEntry id={route.id} handId={route.handId} />}
+      <UpdatePrompt />
     </main>
   );
 }

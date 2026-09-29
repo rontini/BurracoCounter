@@ -24,7 +24,10 @@ describe('iou', () => {
 
 describe('nms', () => {
   it('keeps the best of overlapping boxes of the same class', () => {
-    const kept = nms([box(0, 0, 10, 10, 0.6), box(1, 1, 10, 10, 0.9), box(50, 50, 10, 10, 0.5)], 0.5);
+    const kept = nms(
+      [box(0, 0, 10, 10, 0.6), box(1, 1, 10, 10, 0.9), box(50, 50, 10, 10, 0.5)],
+      0.5,
+    );
     expect(kept.map((b) => b.score)).toEqual([0.9, 0.5]);
   });
 

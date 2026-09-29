@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { decodeYolo } from './yolo';
 
 /** Costruisce un output [1, 4 + C, N] in layout Ultralytics (feature-major). */
-function output(anchors: { cx: number; cy: number; w: number; h: number; scores: number[] }[], classes: number) {
+function output(
+  anchors: { cx: number; cy: number; w: number; h: number; scores: number[] }[],
+  classes: number,
+) {
   const n = anchors.length;
   const data = new Float32Array((4 + classes) * n);
   anchors.forEach((a, i) => {
@@ -25,7 +28,9 @@ describe('decodeYolo', () => {
       3,
     );
     const boxes = decodeYolo(out.data, out.dims, { scoreThreshold: 0.25 });
-    expect(boxes).toEqual([{ x: 90, y: 30, width: 20, height: 40, score: expect.closeTo(0.9), classId: 1 }]);
+    expect(boxes).toEqual([
+      { x: 90, y: 30, width: 20, height: 40, score: expect.closeTo(0.9), classId: 1 },
+    ]);
   });
 
   it('maps tile coordinates back to the image', () => {
@@ -41,6 +46,8 @@ describe('decodeYolo', () => {
   });
 
   it('rejects unexpected shapes', () => {
-    expect(() => decodeYolo(new Float32Array(10), [1, 10], { scoreThreshold: 0.5 })).toThrow(/forma/);
+    expect(() => decodeYolo(new Float32Array(10), [1, 10], { scoreThreshold: 0.5 })).toThrow(
+      /forma/,
+    );
   });
 });

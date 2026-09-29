@@ -15,7 +15,9 @@ describe('computeTiles', () => {
       [800, 600],
       [1599, 0],
     ] as const) {
-      expect(tiles.some((t) => px >= t.x && px < t.x + t.width && py >= t.y && py < t.y + t.height)).toBe(true);
+      expect(
+        tiles.some((t) => px >= t.x && px < t.x + t.width && py >= t.y && py < t.y + t.height),
+      ).toBe(true);
     }
     // Tutti i riquadri sono 640×640 e dentro l'immagine.
     for (const t of tiles) {

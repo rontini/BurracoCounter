@@ -11,6 +11,9 @@ const crossOriginIsolation = {
 
 export default defineConfig({
   plugins: [react()],
+  // Il worker del riconoscimento è un modulo ES (importa onnxruntime-web).
+  worker: { format: 'es' },
+  optimizeDeps: { exclude: ['onnxruntime-web'] },
   server: { headers: crossOriginIsolation },
   preview: { headers: crossOriginIsolation },
 });

@@ -10,16 +10,16 @@ Cloudflare ora crea i progetti come **Worker con asset statici**. La configurazi
 2. Apri **Workers & Pages** → **Create** → importa il repository **rontini/BurracoCounter**.
 3. Compila **Set up your application**:
 
-   | Campo                               | Valore                                                            |
-   | ----------------------------------- | ----------------------------------------------------------------- |
-   | Project name                        | `burracocounter` (deve coincidere con `name` in `wrangler.jsonc`) |
-   | Build command                       | `pnpm --filter @burracount/web build`                             |
-   | Deploy command                      | `npx wrangler deploy`                                             |
-   | Preview command                     | `npx wrangler versions upload`                                    |
-   | Enable Preview builds               | attivo                                                            |
-   | Protect with Cloudflare Access      | spento (vedi sotto)                                               |
-   | Advanced settings → Path            | `/` (vuoto)                                                       |
-   | Advanced settings → Build variables | `NODE_VERSION` = `22`                                             |
+   | Campo                               | Valore                                                                                                |
+   | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+   | Project name                        | `burracocounter` (deve coincidere con `name` in `wrangler.jsonc`)                                     |
+   | Build command                       | `npx -y pnpm@10.33.0 install --frozen-lockfile && npx -y pnpm@10.33.0 --filter @burracount/web build` |
+   | Deploy command                      | `npx wrangler deploy`                                                                                 |
+   | Preview command                     | `npx wrangler versions upload`                                                                        |
+   | Enable Preview builds               | attivo                                                                                                |
+   | Protect with Cloudflare Access      | spento (vedi sotto)                                                                                   |
+   | Advanced settings → Path            | `/` (vuoto)                                                                                           |
+   | Advanced settings → Build variables | nessuna (se c'è `NODE_VERSION`, toglila o usa `22.23.2`)                                              |
 
    Il comando di build usa pnpm tramite `npx`. L'immagine di Cloudflare ha pnpm preinstallato solo per alcune versioni di Node: con `NODE_VERSION = 22` installava la 22.23.3, che non lo ha, e la build falliva con «No preset version installed for command pnpm».
 

@@ -1,0 +1,12 @@
+// Cloudflare Workers con asset statici: pubblica la PWA costruita in apps/web/dist.
+// Il nome deve coincidere con quello del progetto su Cloudflare. Guida: docs/deploy.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "burracocounter",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./apps/web/dist",
+    // Routing via hash: ogni percorso sconosciuto torna all'app.
+    "not_found_handling": "single-page-application",
+  },
+}

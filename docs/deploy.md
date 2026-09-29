@@ -1,33 +1,42 @@
-# Pubblicazione su Cloudflare Pages
+# Pubblicazione su Cloudflare
 
-L'app è statica: Cloudflare costruisce il sito dal repository GitHub a ogni push e lo pubblica su un indirizzo HTTPS `*.pages.dev`. Il piano gratuito basta.
+L'app è statica: Cloudflare la costruisce dal repository GitHub a ogni push e la pubblica su un indirizzo HTTPS `*.workers.dev`. Il piano gratuito basta.
 
 ## Prima configurazione [UMANO], circa 10 minuti
 
+Cloudflare ora crea i progetti come **Worker con asset statici**. La configurazione è nel file `wrangler.jsonc` alla radice del repository.
+
 1. Crea un account gratuito su <https://dash.cloudflare.com/sign-up>.
-2. Apri **Workers & Pages** → **Create** → scheda **Pages** → **Connect to Git**.
-3. Autorizza Cloudflare su GitHub e scegli il repository **rontini/BurracoCounter**. Puoi limitare l'accesso a questo solo repository.
-4. Impostazioni di build:
+2. Apri **Workers & Pages** → **Create** → importa il repository **rontini/BurracoCounter**.
+3. Compila **Set up your application**:
 
-   | Campo                  | Valore                                                    |
-   | ---------------------- | --------------------------------------------------------- |
-   | Project name           | `burracount` (diventa `burracount.pages.dev`)             |
-   | Production branch      | `claude/new-session-b89i50` per ora; `main` dopo il merge |
-   | Framework preset       | None                                                      |
-   | Build command          | `pnpm --filter @burracount/web build`                     |
-   | Build output directory | `apps/web/dist`                                           |
-   | Root directory         | _(vuoto)_                                                 |
-   | Environment variable   | `NODE_VERSION` = `22`                                     |
+   | Campo                               | Valore                                                            |
+   | ----------------------------------- | ----------------------------------------------------------------- |
+   | Project name                        | `burracocounter` (deve coincidere con `name` in `wrangler.jsonc`) |
+   | Build command                       | `pnpm --filter @burracount/web build`                             |
+   | Deploy command                      | `npx wrangler deploy`                                             |
+   | Preview command                     | `npx wrangler versions upload`                                    |
+   | Enable Preview builds               | attivo                                                            |
+   | Protect with Cloudflare Access      | spento (vedi sotto)                                               |
+   | Advanced settings → Path            | `/` (vuoto)                                                       |
+   | Advanced settings → Build variables | `NODE_VERSION` = `22`                                             |
 
-5. **Save and Deploy**. Dopo 1–2 minuti l'app è su `https://burracount.pages.dev`. Da quel momento ogni push sul branch la aggiorna, e l'app mostra l'avviso "Aggiorna".
+4. **Deploy**. La prima build parte dal branch `main`, che ancora non contiene l'app, e può fallire. Dopo averlo creato:
+   - apri il progetto → **Settings** → **Build** → **Branch control**;
+   - imposta **Production branch** = `claude/new-session-b89i50`;
+   - salva e rilancia la build da **Deployments**.
 
-Il file `apps/web/public/_headers` imposta gli header COOP/COEP, che servono al riconoscimento multi-thread, e la cache dei file.
+   In alternativa si fa il merge del branch in `main`.
+
+5. L'app è su `https://burracocounter.<tuo-sottodominio>.workers.dev`: il link è in alto nella pagina del progetto. Ogni push sul branch la aggiorna, e l'app mostra l'avviso "Aggiorna".
+
+Il file `apps/web/public/_headers` imposta gli header COOP/COEP, che servono al riconoscimento multi-thread, e la cache dei file. Gli asset statici dei Worker lo applicano come Pages. Anche qui il limite è 25 MiB per file (D15).
 
 ## Limitare l'accesso agli amici (facoltativo)
 
-L'indirizzo `*.pages.dev` non è indicizzato, ma chiunque abbia il link può aprirlo. Per limitarlo a persone precise si usa **Cloudflare Access**, gratuito fino a 50 utenti:
+L'indirizzo `*.workers.dev` non è indicizzato, ma chiunque abbia il link può aprirlo. Per limitarlo a persone precise si usa **Cloudflare Access**, gratuito fino a 50 utenti:
 
-1. Nel progetto Pages vai in **Settings** → **General** → **Access policy** → **Enable**.
+1. Attiva **Protect with Cloudflare Access** nella creazione, oppure dopo, dalle impostazioni del progetto.
 2. Aggiungi gli indirizzi email ammessi. Al primo accesso ognuno riceve un codice via email.
 
 Non serve per il test iniziale.

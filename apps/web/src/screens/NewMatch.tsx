@@ -1,6 +1,7 @@
 import {
   createMatch,
   DEFAULT_RULESET,
+  DEFAULT_VP_TABLE,
   defaultTeams,
   TARGET_2005_RULESET,
   type GameMode,
@@ -34,7 +35,7 @@ export function NewMatch() {
     void getSetting('vpTable').then((table) => {
       if (cancelled || !table) return;
       setRules((r) =>
-        r.endCondition.type === 'victoryPoints' && r.endCondition.table === null
+        r.endCondition.type === 'victoryPoints'
           ? { ...r, endCondition: { ...r.endCondition, table } }
           : r,
       );
@@ -56,7 +57,11 @@ export function NewMatch() {
     }
     const table = await getSetting('vpTable');
     const end = DEFAULT_RULESET.endCondition;
-    setRules({ ...rules, endCondition: end.type === 'victoryPoints' ? { ...end, table } : end });
+    setRules({
+      ...rules,
+      endCondition:
+        end.type === 'victoryPoints' ? { ...end, table: table ?? DEFAULT_VP_TABLE } : end,
+    });
   }
 
   function updateTeam(i: number, patch: Partial<Team>) {

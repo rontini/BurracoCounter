@@ -1,20 +1,31 @@
-import { parseVictoryPointTable, type VictoryPointTable } from '@burracount/rules';
+import {
+  DEFAULT_VP_TABLE,
+  parseVictoryPointTable,
+  type VictoryPointTable,
+} from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState, type ChangeEvent } from 'react';
 import { VpTableEditor } from '../components/VpTableEditor';
-import { db, setSetting } from '../db';
+import { clearSetting, db, setSetting } from '../db';
 import { t } from '../i18n';
 import { download } from '../lib/download';
 import { href } from '../lib/router';
 
 export function Settings() {
-  // undefined = caricamento, null = nessuna tabella salvata.
-  const table = useLiveQuery(
+  // undefined = caricamento, null = nessuna tabella salvata (vale la predefinita).
+  const saved = useLiveQuery(
     async () => ((await db.settings.get('vpTable'))?.value as VictoryPointTable | null) ?? null,
     [],
   );
   const [message, setMessage] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const table = saved ?? DEFAULT_VP_TABLE;
+
+  async function restoreDefault() {
+    await clearSetting('vpTable');
+    setVersion((v) => v + 1);
+    setMessage(t('vp.restored'));
+  }
 
   async function save(next: VictoryPointTable) {
     await setSetting('vpTable', next);
@@ -50,7 +61,8 @@ export function Settings() {
       <section>
         <h2>{t('rules.vpTable')}</h2>
         <p className="hint">{t('settings.vpIntro')}</p>
-        {table !== undefined && (
+        {saved === null && <p className="hint">{t('vp.usingDefault')}</p>}
+        {saved !== undefined && (
           <VpTableEditor key={version} table={table} onSave={(tb) => void save(tb)} />
         )}
         <div className="row">
@@ -58,13 +70,16 @@ export function Settings() {
             {t('rules.vpTableLoad')}
             <input type="file" accept="application/json,.json" onChange={onImport} />
           </label>
-          {table && (
-            <button
-              type="button"
-              className="btn secondary"
-              onClick={() => download('tabella-vp.json', table)}
-            >
-              {t('vp.export')}
+          <button
+            type="button"
+            className="btn secondary"
+            onClick={() => download('tabella-vp.json', table)}
+          >
+            {t('vp.export')}
+          </button>
+          {saved && (
+            <button type="button" className="btn secondary" onClick={() => void restoreDefault()}>
+              {t('vp.restore')}
             </button>
           )}
         </div>

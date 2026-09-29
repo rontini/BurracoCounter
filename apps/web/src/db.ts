@@ -38,6 +38,10 @@ export async function getSetting<K extends keyof Settings>(key: K): Promise<Sett
   return (row?.value as Settings[K] | undefined) ?? null;
 }
 
+export async function clearSetting(key: keyof Settings): Promise<void> {
+  await db.settings.delete(key);
+}
+
 export async function setSetting<K extends keyof Settings>(
   key: K,
   value: Settings[K],

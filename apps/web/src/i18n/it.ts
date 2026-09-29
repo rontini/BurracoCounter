@@ -36,6 +36,10 @@ export const it = {
   'vp.save': 'Salva tabella',
   'vp.saved': 'Tabella salvata.',
   'vp.export': 'Esporta tabella (JSON)',
+  'vp.usingDefault':
+    'Stai usando la tabella predefinita: le fasce da 14–6 a 19–1 sono stimate, correggile se conosci quelle giuste.',
+  'vp.restore': 'Ripristina la predefinita',
+  'vp.restored': 'Ripristinata la tabella predefinita.',
 
   'new.title': 'Nuova partita',
   'new.name': 'Nome della partita',
@@ -72,8 +76,7 @@ export const it = {
   'rules.handsPerRound': 'Smazzate per turno VP',
   'rules.rounds': 'Turni da giocare (vuoto = libero)',
   'rules.vpTable': 'Tabella Victory Point',
-  'rules.vpTableNone':
-    'Nessuna tabella: inseriscila nelle impostazioni. Intanto il tabellone mostra la differenza punti.',
+  'rules.vpTableNone': 'Nessuna tabella: il tabellone mostra la differenza punti.',
   'rules.vpTableLoad': 'Carica tabella JSON',
   'rules.vpTableRemove': 'Rimuovi tabella',
   'rules.vpTableError': 'Tabella non valida: {error}',
@@ -100,7 +103,6 @@ export const it = {
   'match.notFound': 'Partita non trovata.',
   'match.noVpTable': 'Manca la tabella dei Victory Point.',
   'match.applyVpTable': 'Usa la tabella «{name}»',
-  'match.setupVpTable': 'Inseriscila nelle impostazioni',
 
   'hand.title': 'Smazzata {n}',
   'hand.melds': 'Giochi calati',

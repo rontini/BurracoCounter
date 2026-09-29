@@ -1,4 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Blob e ImageBitmap servono all'interfaccia CardRecognizer.
+    "lib": ["ES2022", "DOM"]
+  },
   "include": ["src"]
 }

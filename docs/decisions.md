@@ -33,16 +33,16 @@ Ogni scelta tecnica non banale: contesto, decisione, alternative scartate.
 - **Contesto:** manifest, service worker e cache del modello sono in §9 e M5.
 - **Decisione:** nessun plugin PWA in M0; si introduce quando l'app ha contenuto da mettere in cache (al più tardi in M5, eventualmente prima per l'offline in M1).
 
-## D6. Interpretazioni del regolamento da confermare (M1)
+## D6. Interpretazioni del regolamento (M1, confermate il 2026-09-29 dove indicato)
 
 Il motore non inventa regole: dove la specifica non è esplicita ho scelto un comportamento, reso configurabile quando possibile, e l'ho elencato in `PROGRESS.md` come domanda aperta.
 
-- **Semipulito:** almeno 7 carte naturali consecutive, con la matta a un'estremità della scala o aggiunta a un tris. Una matta dentro la scala rende il burraco sporco. Il semipulito si disattiva con `burracoSemipulito: null`.
-- **Pinella:** vale sempre 20, anche quando è nella sua posizione naturale. Lì conta come carta normale solo per la classificazione del burraco.
+- **Semipulito** (confermato): almeno 7 carte naturali consecutive, con la matta a un'estremità della scala o aggiunta a un tris. Una matta dentro la scala rende il burraco sporco. Il semipulito si disattiva con `burracoSemipulito: null`.
+- **Pinella** (confermato): vale sempre 20, anche quando è nella sua posizione naturale. Lì conta come carta normale solo per la classificazione del burraco.
 - **Scala:** va dall'asso basso all'asso alto, 14 carte al massimo; non gira (K-A-2 non è valida). Una matta che allunga la scala va in cima, oppure in fondo se in cima c'è già l'asso: per il punteggio le due estremità sono equivalenti.
-- **Tris di pinelle:** non ammesso di default (`allowSetOfTwos`).
+- **Tris di pinelle** (confermato): non ammesso (`allowSetOfTwos: false`).
 - **Obiettivo 2005:** vince chi è in testa dopo la smazzata in cui supera l'obiettivo. In caso di parità in testa si continua.
-- **Victory Point:** le smazzate si raggruppano in turni di `handsPerRound` (4). Ogni turno completo si converte in VP con la tabella, sulla differenza assoluta di punti. Con la differenza a 0 ciascuna squadra prende la media della riga. Il numero di turni è libero (`rounds: null`) finché i giocatori non chiudono la partita. I VP valgono solo per 2 squadre.
+- **Victory Point:** le smazzate si raggruppano in turni di `handsPerRound` (4). Ogni turno completo si converte in VP con la tabella, sulla differenza assoluta di punti. Con la differenza a 0 ciascuna squadra prende la media della riga. Di default una partita è **un turno di 4 smazzate** (`rounds: 1`, confermato); il numero di turni resta configurabile. I VP valgono solo per 2 squadre.
 - **1v1v1 "con divisione dei punti":** non so che cosa significhi. Per ora ogni giocatore è una squadra e ha il suo punteggio.
 - **Burraco reale/super:** disattivati, non implementati.
 
@@ -56,3 +56,9 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 
 - "Pozzetto preso" parte attivo, perché è il caso più comune. "Ha chiuso" attiva automaticamente anche "pozzetto preso", ma si può comunque cambiare.
 - Il selettore di carte tiene il seme selezionato: per una scala basta toccare i valori.
+
+## D9. Tabella VP inserita dall'utente, non precaricata (M1)
+
+- **Contesto:** il gruppo usa la tabella VP "standard". Le fonti raggiungibili riportano solo le prime fasce (0–50 → 10–10, 55–150 → 11–9, 155–250 → 12–8, 255–350 → 13–7) e non concordano sull'ultima (20–0 oltre 1500 o oltre 2000). Nel codice di gara FIBUR la tabella dipende anche dal numero di mani. Il documento ufficiale non è raggiungibile dall'ambiente di sviluppo.
+- **Decisione:** nessuna tabella precaricata, per non inventarla. Le impostazioni hanno un editor della tabella (e l'import/export in JSON) salvato in IndexedDB; ogni nuova partita a VP la usa come default. Una partita già iniziata senza tabella mostra un avviso con il pulsante per applicare quella salvata.
+- **Alternative scartate:** precaricare una tabella incompleta o non verificata.

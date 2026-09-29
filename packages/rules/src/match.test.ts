@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cards } from './cards';
 import { createMatch, defaultTeams, scoreMatch } from './match';
 import { validateMeld } from './meld';
-import { DEFAULT_RULESET, TARGET_2005_RULESET } from './ruleset';
+import { DEFAULT_RULESET, DEFAULT_VP_TABLE, TARGET_2005_RULESET } from './ruleset';
 import { parseVictoryPointTable, victoryPointsFor } from './victory-points';
 import type { HandResult, Match, Meld, RuleSet, TeamHandResult, VictoryPointTable } from './types';
 
@@ -238,5 +238,25 @@ describe('victory point tables', () => {
       }).join(' '),
     ).toMatch(/ultima/);
     expect(bad({ name: 'x', rows: ['a'] }).join(' ')).toMatch(/riga/);
+  });
+});
+
+describe('DEFAULT_VP_TABLE', () => {
+  it('is a valid table and the default of the rule set', () => {
+    expect(parseVictoryPointTable(DEFAULT_VP_TABLE)).toEqual({ ok: true, table: DEFAULT_VP_TABLE });
+    expect(DEFAULT_RULESET.endCondition).toMatchObject({ table: DEFAULT_VP_TABLE });
+  });
+
+  it('matches the known standard bands', () => {
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 50)).toEqual({ winner: 10, loser: 10 });
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 55)).toEqual({ winner: 11, loser: 9 });
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 150)).toEqual({ winner: 11, loser: 9 });
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 250)).toEqual({ winner: 12, loser: 8 });
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 350)).toEqual({ winner: 13, loser: 7 });
+  });
+
+  it('gives 20–0 only above 2000', () => {
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 2000)).toEqual({ winner: 19, loser: 1 });
+    expect(victoryPointsFor(DEFAULT_VP_TABLE, 2005)).toEqual({ winner: 20, loser: 0 });
   });
 });

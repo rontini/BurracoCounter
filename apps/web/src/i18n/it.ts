@@ -1,5 +1,8 @@
 export const it = {
   appName: 'BurraCount',
+  'error.title': 'Qualcosa è andato storto',
+  'error.text': "Manda questo messaggio a chi sviluppa l'app (anche con uno screenshot):",
+  'error.reload': 'Ricarica',
   tagline: 'Il segnapunti del burraco',
   back: 'Indietro',
   cancel: 'Annulla',

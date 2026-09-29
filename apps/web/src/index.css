@@ -831,3 +831,14 @@ button.card-chip {
   margin: 0 0 0.5rem;
   padding-left: 1.25rem;
 }
+
+.error-detail {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0.75rem;
+  margin: 0;
+  border-radius: 10px;
+  background: var(--warn-bg, #fdecea);
+  color: var(--danger, #b3261e);
+  font-size: 0.85rem;
+}

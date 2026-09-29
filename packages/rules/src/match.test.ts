@@ -122,8 +122,12 @@ describe('scoreMatch – victory points', () => {
     endCondition: { type: 'victoryPoints', handsPerRound: 4, rounds, table },
   });
 
-  it('defaults to VP every 4 hands', () => {
-    expect(DEFAULT_RULESET.endCondition).toMatchObject({ type: 'victoryPoints', handsPerRound: 4 });
+  it('defaults to one round of 4 hands converted to VP', () => {
+    expect(DEFAULT_RULESET.endCondition).toMatchObject({
+      type: 'victoryPoints',
+      handsPerRound: 4,
+      rounds: 1,
+    });
   });
 
   it('converts each complete round of 4 hands into VP', () => {

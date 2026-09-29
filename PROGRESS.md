@@ -29,19 +29,24 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
   - E2E offline verde; guida in `docs/deploy.md`.
 - **Licenza**: uso privato per ora, si resta su Ultralytics (D17).
 
+- **Pubblicata** (2026-09-29) su <https://burracocounter.rontinim.workers.dev>: Cloudflare Workers con asset statici, build a ogni push su `claude/new-session-b89i50` (D18).
+
 ## In corso
 
-- In attesa della prima pubblicazione su Cloudflare Pages.
+- Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
 
 ## Bloccato / domande aperte [UMANO]
 
-1. **Account Cloudflare e collegamento del repository**: vedi `docs/deploy.md`, circa 10 minuti.
-2. **Test sui telefoni** (iPhone e Android): installazione, offline, tempo del riconoscimento. Checklist in `docs/deploy.md`.
-3. **Foto** (in arrivo): marca del mazzo, foto delle singole carte jolly compresi, 5–10 foto di fine smazzata.
-4. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+1. **Esito del test sui telefoni** (iPhone e Android):
+   - l'installazione funziona;
+   - l'app funziona offline;
+   - `crossOriginIsolated` è attivo (se il riconoscimento dice "wasm×1" invece di "wasm×4", gli header non arrivano);
+   - tempo del riconoscimento su una foto.
+2. **Foto** (in arrivo): marca del mazzo, foto delle singole carte jolly compresi, 5–10 foto di fine smazzata.
+3. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
 
 ## Prossimi passi
 
-1. Appena la pubblicazione è attiva: raccogliere i risultati del test sui telefoni (D14, D15).
+1. Raccogliere i risultati del test sui telefoni (D14, D15).
 2. Con le foto: **M3**. Istruzioni per le foto del mazzo, generatore sintetico, notebook di training, golden set.
 3. Poi **M4**: deduplica degli angoli e raggruppamento in giochi.

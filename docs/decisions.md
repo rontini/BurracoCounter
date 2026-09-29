@@ -142,3 +142,13 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 - **Se l'app diventasse pubblica:** due strade, nessuna delle due complicata.
   - Pubblicare il codice con licenza AGPL: nessun lavoro tecnico.
   - Sostituire il modello con un detector a licenza permissiva: `CardRecognizer`, dataset sintetico e script di valutazione restano gli stessi; cambia solo l'addestramento.
+
+## D18. Cloudflare Workers con asset statici invece di Pages
+
+- **Contesto:** la procedura attuale di Cloudflare crea i progetti collegati a Git come Worker con asset statici. La specifica (§2, §9) nomina Cloudflare Pages.
+- **Decisione:**
+  - Configurazione in `wrangler.jsonc` (`assets.directory = apps/web/dist`), deploy con `npx wrangler deploy` dopo la build.
+  - Il file `_headers` (COOP/COEP) e il limite di 25 MiB per file valgono come su Pages.
+  - Indirizzo: <https://burracocounter.rontinim.workers.dev>.
+- **Build su Cloudflare:** pnpm si esegue tramite `npx -y pnpm@10.33.0`, perché l'immagine di build ha pnpm solo per alcune versioni di Node. Non si imposta `NODE_VERSION = 22`: installerebbe la 22.23.3, che ne è priva.
+- **Alternative scartate:** creare un progetto Pages classico. È possibile, ma non è più la procedura proposta dal pannello, e il risultato per l'app è identico.

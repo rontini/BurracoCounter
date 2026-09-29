@@ -4,6 +4,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "burracocounter",
   "compatibility_date": "2026-09-01",
+  // Indirizzo pubblico burracocounter.<account>.workers.dev e URL di anteprima dei branch.
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "directory": "./apps/web/dist",
     // Routing via hash: ogni percorso sconosciuto torna all'app.

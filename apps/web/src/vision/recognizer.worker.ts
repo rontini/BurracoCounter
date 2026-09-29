@@ -1,7 +1,9 @@
 /// <reference lib="webworker" />
-import * as ort from 'onnxruntime-web/webgpu';
-import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm?url';
-import wasmModuleUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs?url';
+// Solo WASM: il binario con WebGPU (27 MiB) supera il limite di 25 MiB per file
+// di Cloudflare Pages (docs/decisions.md, D15).
+import * as ort from 'onnxruntime-web/wasm';
+import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url';
+import wasmModuleUrl from 'onnxruntime-web/ort-wasm-simd-threaded.mjs?url';
 import { BASELINE_LABELS, fitWithin, recognizeTiles, type Tile } from '@burracount/vision';
 import type { WorkerRequest, WorkerResponse } from './protocol';
 
@@ -21,17 +23,27 @@ ort.env.wasm.numThreads = self.crossOriginIsolated
 
 let sessionPromise: Promise<{ session: ort.InferenceSession; backend: string }> | null = null;
 
-async function createSession() {
-  const model = await (await fetch(MODEL_URL)).arrayBuffer();
-  // WebGPU se disponibile, altrimenti WASM (CLAUDE.md §2).
-  if ('gpu' in self.navigator) {
+/**
+ * Al primo avvio il service worker mette in cache lo stesso file in parallelo:
+ * niente cache HTTP (evita errori di scrittura concorrente) e un secondo tentativo.
+ * Dopo l'installazione il file arriva dalla cache del service worker.
+ */
+async function fetchModel(): Promise<ArrayBuffer> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const session = await ort.InferenceSession.create(model, { executionProviders: ['webgpu'] });
-      return { session, backend: 'webgpu' };
-    } catch {
-      // Adattatore assente o operatore non supportato: si ripiega su WASM.
+      const res = await fetch(MODEL_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Modello non disponibile (HTTP ${res.status})`);
+      return await res.arrayBuffer();
+    } catch (err) {
+      lastError = err;
     }
   }
+  throw lastError;
+}
+
+async function createSession() {
+  const model = await fetchModel();
   const session = await ort.InferenceSession.create(model, { executionProviders: ['wasm'] });
   return { session, backend: `wasm×${ort.env.wasm.numThreads}` };
 }

@@ -6,6 +6,7 @@ describe('router', () => {
     const routes: Route[] = [
       { name: 'home' },
       { name: 'new' },
+      { name: 'settings' },
       { name: 'match', id: 'abc' },
       { name: 'hand', id: 'abc', handId: null },
       { name: 'hand', id: 'abc', handId: 'h1' },

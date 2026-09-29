@@ -618,3 +618,37 @@ button.card-chip {
 .summary-team h2 {
   margin-top: 0;
 }
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  border: 1px dashed var(--wild);
+}
+
+.notice p {
+  margin: 0;
+}
+
+.vp-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.vp-table td {
+  padding: 0.25rem;
+}
+
+.vp-table input {
+  width: 100%;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.vp-table th {
+  font-size: 0.85rem;
+}

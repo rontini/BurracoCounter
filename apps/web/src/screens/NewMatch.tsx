@@ -7,9 +7,9 @@ import {
   type RuleSet,
   type Team,
 } from '@burracount/rules';
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { RulesEditor } from '../components/RulesEditor';
-import { requestPersistentStorage, saveMatch } from '../db';
+import { getSetting, requestPersistentStorage, saveMatch } from '../db';
 import { t } from '../i18n';
 import { newId } from '../lib/id';
 import { href, navigate } from '../lib/router';
@@ -28,14 +28,35 @@ export function NewMatch() {
   const [rules, setRules] = useState<RuleSet>(DEFAULT_RULESET);
   const preset = rules.endCondition.type === 'target' ? 'target' : 'vp';
 
+  // La tabella VP salvata nelle impostazioni diventa il default.
+  useEffect(() => {
+    let cancelled = false;
+    void getSetting('vpTable').then((table) => {
+      if (cancelled || !table) return;
+      setRules((r) =>
+        r.endCondition.type === 'victoryPoints' && r.endCondition.table === null
+          ? { ...r, endCondition: { ...r.endCondition, table } }
+          : r,
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   function changeMode(m: GameMode) {
     setMode(m);
     setTeams(defaultTeams(m));
   }
 
-  function changePreset(p: 'vp' | 'target') {
-    const base = p === 'vp' ? DEFAULT_RULESET : TARGET_2005_RULESET;
-    setRules({ ...rules, endCondition: base.endCondition });
+  async function changePreset(p: 'vp' | 'target') {
+    if (p === 'target') {
+      setRules({ ...rules, endCondition: TARGET_2005_RULESET.endCondition });
+      return;
+    }
+    const table = await getSetting('vpTable');
+    const end = DEFAULT_RULESET.endCondition;
+    setRules({ ...rules, endCondition: end.type === 'victoryPoints' ? { ...end, table } : end });
   }
 
   function updateTeam(i: number, patch: Partial<Team>) {
@@ -124,7 +145,7 @@ export function NewMatch() {
                 type="radio"
                 name="preset"
                 checked={preset === p}
-                onChange={() => changePreset(p)}
+                onChange={() => void changePreset(p)}
               />
               {t(`new.preset.${p}`)}
             </label>

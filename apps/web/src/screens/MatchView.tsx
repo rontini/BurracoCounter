@@ -1,4 +1,4 @@
-import { scoreMatch, type Match } from '@burracount/rules';
+import { scoreMatch, type Match, type VictoryPointTable } from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
 import { db, deleteMatch, saveMatch } from '../db';
@@ -28,6 +28,18 @@ function Scoreboard({ match }: { match: Match }) {
   const end = match.ruleSet.endCondition;
   const teamName = (id: string) => match.teams.find((x) => x.id === id)?.name ?? id;
   const winners = score.winnerIds.map(teamName);
+  const savedTable = useLiveQuery(
+    async () => ((await db.settings.get('vpTable'))?.value as VictoryPointTable | null) ?? null,
+    [],
+  );
+
+  async function applyTable(table: VictoryPointTable) {
+    if (end.type !== 'victoryPoints') return;
+    await saveMatch({
+      ...match,
+      ruleSet: { ...match.ruleSet, endCondition: { ...end, table } },
+    });
+  }
 
   async function toggleFinished() {
     await saveMatch({ ...match, finishedAt: match.finishedAt ? null : new Date().toISOString() });
@@ -60,6 +72,21 @@ function Scoreboard({ match }: { match: Match }) {
             ? t('match.winner', { name: winners[0]! })
             : t('match.tie', { names: winners.join(', ') })}
         </p>
+      )}
+
+      {end.type === 'victoryPoints' && !end.table && match.teams.length === 2 && (
+        <div className="notice">
+          <p>{t('match.noVpTable')}</p>
+          {savedTable ? (
+            <button type="button" className="btn secondary" onClick={() => applyTable(savedTable)}>
+              {t('match.applyVpTable', { name: savedTable.name })}
+            </button>
+          ) : (
+            <a className="btn secondary" href={href({ name: 'settings' })}>
+              {t('match.setupVpTable')}
+            </a>
+          )}
+        </div>
       )}
 
       <section className="totals" aria-label={t('match.total')}>

@@ -1,16 +1,29 @@
 import Dexie, { type Table } from 'dexie';
-import type { Match } from '@burracount/rules';
+import type { Match, VictoryPointTable } from '@burracount/rules';
 
 export interface StoredMatch extends Match {
   updatedAt: string;
 }
 
+/** Impostazioni dell'app, una riga per chiave. */
+export interface Settings {
+  /** Tabella VP usata come default nelle nuove partite. */
+  vpTable: VictoryPointTable | null;
+}
+
+interface SettingRow<K extends keyof Settings = keyof Settings> {
+  key: K;
+  value: Settings[K];
+}
+
 class BurraCountDB extends Dexie {
   matches!: Table<StoredMatch, string>;
+  settings!: Table<SettingRow, string>;
 
   constructor() {
     super('burracount');
     this.version(1).stores({ matches: 'id, createdAt, updatedAt' });
+    this.version(2).stores({ matches: 'id, createdAt, updatedAt', settings: 'key' });
   }
 }
 
@@ -18,6 +31,18 @@ export const db = new BurraCountDB();
 
 export async function saveMatch(match: Match): Promise<void> {
   await db.matches.put({ ...match, updatedAt: new Date().toISOString() });
+}
+
+export async function getSetting<K extends keyof Settings>(key: K): Promise<Settings[K] | null> {
+  const row = await db.settings.get(key);
+  return (row?.value as Settings[K] | undefined) ?? null;
+}
+
+export async function setSetting<K extends keyof Settings>(
+  key: K,
+  value: Settings[K],
+): Promise<void> {
+  await db.settings.put({ key, value });
 }
 
 export async function deleteMatch(id: string): Promise<void> {

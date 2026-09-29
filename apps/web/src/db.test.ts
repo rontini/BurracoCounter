@@ -1,7 +1,16 @@
 import 'fake-indexeddb/auto';
 import { createMatch, DEFAULT_RULESET, defaultTeams } from '@burracount/rules';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db, deleteMatch, exportMatches, importMatches, parseMatchesExport, saveMatch } from './db';
+import {
+  db,
+  deleteMatch,
+  exportMatches,
+  getSetting,
+  importMatches,
+  parseMatchesExport,
+  saveMatch,
+  setSetting,
+} from './db';
 
 const match = createMatch({
   id: 'm1',
@@ -30,6 +39,13 @@ describe('db', () => {
     await db.matches.clear();
     expect(await importMatches(parseMatchesExport(json))).toBe(1);
     expect((await db.matches.get('m1'))?.teams).toEqual(match.teams);
+  });
+
+  it('stores settings', async () => {
+    expect(await getSetting('vpTable')).toBeNull();
+    const table = { name: 'Casa', rows: [{ maxDiff: null, winner: 20, loser: 0 }] };
+    await setSetting('vpTable', table);
+    expect(await getSetting('vpTable')).toEqual(table);
   });
 
   it('rejects foreign files', () => {

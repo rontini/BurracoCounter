@@ -3,17 +3,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState, type ChangeEvent } from 'react';
 import { db, exportMatches, importMatches, parseMatchesExport, type StoredMatch } from '../db';
 import { t } from '../i18n';
+import { download } from '../lib/download';
 import { href } from '../lib/router';
-
-function download(filename: string, data: unknown) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 function MatchItem({ match }: { match: StoredMatch }) {
   const score = scoreMatch(match);
@@ -111,6 +102,9 @@ export function Home() {
           {message}
         </p>
       )}
+      <a className="btn ghost" href={href({ name: 'settings' })}>
+        ⚙ {t('home.settings')}
+      </a>
     </div>
   );
 }

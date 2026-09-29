@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 export type Route =
   | { name: 'home' }
   | { name: 'new' }
+  | { name: 'settings' }
   | { name: 'match'; id: string }
   | { name: 'hand'; id: string; handId: string | null };
 
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   if (parts[0] === 'nuova') return { name: 'new' };
+  if (parts[0] === 'impostazioni') return { name: 'settings' };
   if (parts[0] === 'partita' && parts[1]) {
     if (parts[2] === 'smazzata') return { name: 'hand', id: parts[1], handId: parts[3] ?? null };
     return { name: 'match', id: parts[1] };
@@ -22,6 +24,8 @@ export function href(route: Route): string {
       return '#/';
     case 'new':
       return '#/nuova';
+    case 'settings':
+      return '#/impostazioni';
     case 'match':
       return `#/partita/${route.id}`;
     case 'hand':

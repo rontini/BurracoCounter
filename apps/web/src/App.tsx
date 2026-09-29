@@ -3,6 +3,7 @@ import { HandEntry } from './screens/HandEntry';
 import { Home } from './screens/Home';
 import { MatchView } from './screens/MatchView';
 import { NewMatch } from './screens/NewMatch';
+import { Settings } from './screens/Settings';
 
 export function App() {
   const route = useRoute();
@@ -10,6 +11,7 @@ export function App() {
     <main className="app">
       {route.name === 'home' && <Home />}
       {route.name === 'new' && <NewMatch />}
+      {route.name === 'settings' && <Settings />}
       {route.name === 'match' && <MatchView id={route.id} />}
       {route.name === 'hand' && <HandEntry id={route.id} handId={route.handId} />}
     </main>

@@ -1,22 +1,43 @@
 :root {
   color-scheme: light dark;
-  --bg: #f7f5ef;
-  --fg: #1b1b1b;
-  --accent: #0f5132;
+  --bg: #f6f4ee;
+  --surface: #ffffff;
+  --surface-2: #eeebe2;
+  --fg: #1c1c1a;
+  --muted: #62625c;
+  --border: #d9d5c9;
+  --accent: #0f6b3f;
+  --accent-fg: #ffffff;
+  --red: #c0262d;
+  --danger: #b3261e;
+  --warn-bg: #fdecea;
+  --wild: #7a4dd8;
+  --radius: 12px;
+  --tap: 48px;
   font-family:
     system-ui,
     -apple-system,
     'Segoe UI',
     Roboto,
     sans-serif;
-  line-height: 1.5;
+  font-size: 17px;
+  line-height: 1.45;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121412;
+    --bg: #111311;
+    --surface: #1b1e1b;
+    --surface-2: #252925;
     --fg: #ecece6;
-    --accent: #6fcf97;
+    --muted: #a3a39b;
+    --border: #353a35;
+    --accent: #5fcf8f;
+    --accent-fg: #0c1a12;
+    --red: #ff7a7f;
+    --danger: #ff8a80;
+    --warn-bg: #3a1f1d;
+    --wild: #b69cff;
   }
 }
 
@@ -34,9 +55,566 @@ body {
 .app {
   max-width: 40rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+.hero {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
   color: var(--accent);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bar h1 {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.center {
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Pulsanti */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  padding: 0 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  padding: 0 0.5rem;
+}
+
+.btn.danger {
+  color: var(--danger);
+}
+
+.btn.big {
+  min-height: 56px;
+  font-size: 1.1rem;
+  width: 100%;
+}
+
+.btn.small {
+  min-height: 36px;
+  font-size: 0.9rem;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.file-btn input {
+  display: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Form */
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+legend {
+  font-weight: 600;
+  padding: 0 0.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field.inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field.inline input {
+  width: 6rem;
+  text-align: right;
+}
+
+input:not([type='checkbox'], [type='radio'], [type='file']) {
+  min-height: var(--tap);
+  padding: 0 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 40px;
+}
+
+.toggle input {
+  width: 1.4rem;
+  height: 1.4rem;
+  accent-color: var(--accent);
+}
+
+.toggle.big {
+  min-height: var(--tap);
+  font-weight: 600;
+}
+
+.segmented {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}
+
+.segmented label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 9px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.segmented label.selected {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.team-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.team-editor:last-child {
+  border-bottom: 0;
+}
+
+.team-name {
+  font-weight: 700;
+}
+
+details > summary {
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.rules-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--danger);
+  margin: 0.25rem 0;
+}
+
+/* Liste partite */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.match-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Tabellone */
+.totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+}
+
+.total-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.total-card .team {
+  font-weight: 700;
+}
+
+.total-card .points {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.15rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.history {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 0.75rem;
+}
+
+.history details[open] {
+  padding-bottom: 0.75rem;
+}
+
+.history summary {
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: var(--tap);
+}
+
+.hand-totals {
+  display: flex;
+  gap: 0.75rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.hand-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.2rem 1rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown dd {
+  margin: 0;
+  text-align: right;
+}
+
+.breakdown .total {
+  font-weight: 800;
+  border-top: 1px solid var(--border);
+  padding-top: 0.25rem;
+}
+
+/* Inserimento smazzata */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}
+
+.tabs button {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0 0.75rem;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected='true'] {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+}
+
+.tabs button.has-problem {
+  color: var(--danger);
+}
+
+.meld,
+.player-hand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.player-hand h2 {
+  margin: 0;
+}
+
+.meld.problem {
+  border-color: var(--danger);
+  background: var(--warn-bg);
+}
+
+.meld-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  align-items: center;
+}
+
+.card-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 0.4rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+button.card-chip {
+  cursor: pointer;
+}
+
+.card-chip.red,
+.suit-btn.red {
+  color: var(--red);
+}
+
+.card-chip.wild {
+  border: 2px solid var(--wild);
+}
+
+.ambiguity {
+  border-color: var(--wild);
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.picker-suits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+}
+
+.suit-btn,
+.rank-btn {
+  min-height: var(--tap);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.suit-btn[aria-checked='true'] {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.picker-ranks {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+}
+
+.rank-btn.joker {
+  grid-column: span 1;
+  font-size: 0.8rem;
+  color: var(--wild);
+}
+
+.switches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+
+.summary-team {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.summary-team h2 {
+  margin-top: 0;
 }

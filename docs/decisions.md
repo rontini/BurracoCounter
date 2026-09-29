@@ -111,3 +111,34 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 - **Rischio:**
   - Una foto 4:3 da 12 MP viene ridotta a 3000×2250, cioè 30 riquadri: su WASM in un telefono di fascia media potrebbe superare i 5 s.
   - Leve possibili, da valutare con le misure sui telefoni reali [UMANO]: WebGPU, lato lungo più basso per le foto di un solo gioco, modello FP16.
+
+## D15. ONNX Runtime solo WASM, senza WebGPU (M5 anticipata)
+
+- **Contesto:** Cloudflare Pages accetta file fino a 25 MiB. Il WASM di ONNX Runtime con WebGPU (JSEP) pesa 27 MiB; quello solo WASM 13,6 MiB (3,7 MB compressi).
+- **Decisione:** il worker usa `onnxruntime-web/wasm`, multi-thread con cross-origin isolation. Le misure di M2 erano già su WASM, perché in CI non c'è GPU. Rispetto a D13 si scende anche di 13 MB nel primo download.
+- **Alternative scartate per ora:**
+  - JSEP servito da una CDN: dipendenza esterna, e COEP e cache offline più complicati.
+  - Variante JSPI (16 MiB): WebGPU solo sui Chrome recenti, non su Safari.
+  - Netlify, senza il limite dei 25 MiB: la specifica preferisce Cloudflare.
+- **Da rivedere:** se sui telefoni reali WASM supera i 5 s (D14).
+
+## D16. PWA e pubblicazione anticipate prima di M3 (M5)
+
+- **Contesto:** il gruppo vuole provare l'app sui telefoni mentre raccoglie le foto per M3. La specifica mette la pubblicazione in M5, dopo M3–M4.
+- **Decisione:** su richiesta esplicita anticipo la parte di M5 che non dipende dal modello:
+  - manifest e icone (`apps/web/scripts/make_icons.py`);
+  - service worker che, al primo avvio, mette in cache app, WASM e modello (circa 25 MB);
+  - avviso "Aggiorna";
+  - installazione su iOS e Android;
+  - `_headers` per Cloudflare Pages;
+  - E2E offline;
+  - guida in `docs/deploy.md`.
+- **Scaricamento del modello:** al primo avvio il worker lo scarica con `cache: 'no-store'` e un secondo tentativo, per evitare un errore di scrittura concorrente con la cache del service worker.
+- **Ancora aperto:** il criterio di M5 (app installata e funzionante offline su telefoni reali) resta [UMANO], come M3 e M4.
+
+## D17. Uso privato e licenza AGPL
+
+- **Decisione del gruppo (2026-09-29):** per ora l'app è solo per uso personale e degli amici, non pubblica. Si resta su Ultralytics (D12).
+- **Se l'app diventasse pubblica:** due strade, nessuna delle due complicata.
+  - Pubblicare il codice con licenza AGPL: nessun lavoro tecnico.
+  - Sostituire il modello con un detector a licenza permissiva: `CardRecognizer`, dataset sintetico e script di valutazione restano gli stessi; cambia solo l'addestramento.

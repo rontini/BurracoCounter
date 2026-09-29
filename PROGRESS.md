@@ -22,19 +22,26 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
   - UI: foto (fotocamera o galleria) dei giochi e delle carte in mano, revisione con overlay, confidenze, correzione rapida, aggiunta e rimozione.
   - E2E: parità con Python sulle foto di prova; foto 2400×1800 riconosciuta in ~3 s in Chromium headless (<5 s).
 
+- **Pubblicazione anticipata (parte di M5)** (2026-09-29, D16):
+  - PWA installabile con icone e manifest; service worker con app, WASM e modello in cache: offline dopo il primo avvio.
+  - Avviso "Aggiorna"; istruzioni di installazione per iPhone e pulsante per Android; `_headers` per Cloudflare Pages.
+  - ONNX Runtime solo WASM, per stare nel limite di 25 MiB per file (D15).
+  - E2E offline verde; guida in `docs/deploy.md`.
+- **Licenza**: uso privato per ora, si resta su Ultralytics (D17).
+
 ## In corso
 
-- Nessuna. Il criterio di M2 ("dalla foto alle carte in meno di 5 secondi") è verificato in CI; resta la conferma su un telefono di fascia media.
+- In attesa della prima pubblicazione su Cloudflare Pages.
 
 ## Bloccato / domande aperte [UMANO]
 
-1. **Licenza AGPL di Ultralytics** (D12): l'app sarà pubblica? Se sì, va bene rendere pubblico il codice (AGPL)? Altrimenti in M3 si usa un detector con licenza permissiva.
-2. **Tempi su un telefono reale**: aprire l'app (dopo il deploy di M5, o con `pnpm --filter @burracount/web dev --host` in rete locale) e riportare il tempo mostrato nella revisione.
-3. **Foto di prova reali**: 5–10 foto di fine smazzata con il vostro mazzo.
-4. **Marca del mazzo** e foto delle singole carte, jolly compresi: servono per M3 (dataset sintetico e fine-tuning).
-5. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+1. **Account Cloudflare e collegamento del repository**: vedi `docs/deploy.md`, circa 10 minuti.
+2. **Test sui telefoni** (iPhone e Android): installazione, offline, tempo del riconoscimento. Checklist in `docs/deploy.md`.
+3. **Foto** (in arrivo): marca del mazzo, foto delle singole carte jolly compresi, 5–10 foto di fine smazzata.
+4. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
 
 ## Prossimi passi
 
-1. **M3**: istruzioni e checklist per le foto del mazzo; generatore sintetico (`ml/generator`); notebook di training YOLO11n/YOLO11s; valutazione sul golden set. Serve prima il mazzo reale.
-2. In parallelo, senza foto: **M4** (deduplica degli angoli e raggruppamento in giochi) si può iniziare sui dati sintetici, ma la specifica chiede di chiudere prima M3.
+1. Appena la pubblicazione è attiva: raccogliere i risultati del test sui telefoni (D14, D15).
+2. Con le foto: **M3**. Istruzioni per le foto del mazzo, generatore sintetico, notebook di training, golden set.
+3. Poi **M4**: deduplica degli angoli e raggruppamento in giochi.

@@ -21,6 +21,8 @@ Cloudflare ora crea i progetti come **Worker con asset statici**. La configurazi
    | Advanced settings → Path            | `/` (vuoto)                                                       |
    | Advanced settings → Build variables | `NODE_VERSION` = `22`                                             |
 
+   Il comando di build usa pnpm tramite `npx`. L'immagine di Cloudflare ha pnpm preinstallato solo per alcune versioni di Node: con `NODE_VERSION = 22` installava la 22.23.3, che non lo ha, e la build falliva con «No preset version installed for command pnpm».
+
 4. **Deploy**. La prima build parte dal branch `main`, che ancora non contiene l'app, e può fallire. Dopo averlo creato:
    - apri il progetto → **Settings** → **Build** → **Branch control**;
    - imposta **Production branch** = `claude/new-session-b89i50`;

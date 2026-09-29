@@ -1,8 +1,11 @@
 import { scoreHand, type Card, type Match, type Meld } from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getRecognizer } from '../vision/workerRecognizer';
 import { CardChip } from '../components/CardChip';
 import { CardPicker } from '../components/CardPicker';
+import { PhotoInput } from '../components/PhotoInput';
+import { PhotoReview } from '../components/PhotoReview';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
 import { db, saveMatch } from '../db';
 import { t } from '../i18n';
@@ -55,6 +58,21 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
   );
   const [tab, setTab] = useState<number | 'summary'>(0);
   const [target, setTarget] = useState<Target | null>(null);
+  const [photo, setPhoto] = useState<{ blob: Blob; target: Target } | null>(null);
+  const [model, setModel] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    getRecognizer()
+      .warmUp()
+      .then(
+        () => !cancelled && setModel('ready'),
+        () => !cancelled && setModel('error'),
+      );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const teamIndex = tab === 'summary' ? 0 : tab;
   const draft = drafts[teamIndex]!;
@@ -78,6 +96,20 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
         hands: d.hands.map((h, p) => (p === target.player ? [...h, card] : h)),
       }));
     }
+  }
+
+  function addFromPhoto(cards: Card[]) {
+    if (!photo) return;
+    const dest = photo.target;
+    if (dest.type === 'meld') {
+      update((d) => ({ ...d, melds: [...d.melds, { cards, choice: null }] }));
+    } else {
+      update((d) => ({
+        ...d,
+        hands: d.hands.map((h, p) => (p === dest.player ? [...h, ...cards] : h)),
+      }));
+    }
+    setPhoto(null);
   }
 
   function setClosed(closed: boolean) {
@@ -150,7 +182,14 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
         </button>
       </nav>
 
-      {tab === 'summary' ? (
+      {photo ? (
+        <PhotoReview
+          photo={photo.blob}
+          confirmLabel={photo.target.type === 'meld' ? t('photo.asMeld') : t('photo.asHand')}
+          onConfirm={addFromPhoto}
+          onCancel={() => setPhoto(null)}
+        />
+      ) : tab === 'summary' ? (
         <section>
           {problems.some((p) => p.kind === 'meld') && (
             <p className="error" role="alert">
@@ -176,6 +215,20 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
       ) : (
         <section aria-label={team.name}>
           <h2>{t('hand.melds')}</h2>
+          <p className="muted small" role="status" data-testid="model-status" data-state={model}>
+            {model === 'loading'
+              ? t('photo.loading')
+              : model === 'ready'
+                ? t('photo.ready')
+                : t('photo.unavailable')}
+          </p>
+          <PhotoInput
+            label={t('photo.melds')}
+            onPhoto={(blob) => {
+              setTarget(null);
+              setPhoto({ blob, target: { type: 'meld', index: draft.melds.length } });
+            }}
+          />
           {draft.melds.map((m, i) => {
             const status = meldStatus(m, allowTwos);
             const meld = status.state === 'ok' ? status.meld : null;
@@ -287,6 +340,13 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
                 {isTarget({ type: 'hand', player: p }) ? t('hand.done') : t('hand.addCards')}
               </button>
               {isTarget({ type: 'hand', player: p }) && <CardPicker onPick={addCard} />}
+              <PhotoInput
+                label={t('photo.hand', { name: player })}
+                onPhoto={(blob) => {
+                  setTarget(null);
+                  setPhoto({ blob, target: { type: 'hand', player: p } });
+                }}
+              />
             </div>
           ))}
 

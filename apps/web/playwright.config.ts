@@ -14,7 +14,14 @@ export default defineConfig({
     locale: 'it-IT',
   },
   projects: [
-    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
+    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] }, testIgnore: /\.perf\.spec\.ts$/ },
+    // Misure di tempo: partono quando gli altri test sono finiti.
+    {
+      name: 'perf',
+      use: { ...devices['Pixel 7'] },
+      testMatch: /\.perf\.spec\.ts$/,
+      dependencies: ['mobile-chrome'],
+    },
     // WebKit (iPhone) si aggiunge quando serve verificare il comportamento Safari.
   ],
   webServer: {

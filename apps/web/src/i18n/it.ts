@@ -135,6 +135,30 @@ export const it = {
   'burraco.semipulito': 'semipulito',
   'burraco.sporco': 'sporco',
 
+  'photo.camera': 'Scatta foto',
+  'photo.loading': 'Preparazione del riconoscimento…',
+  'photo.ready': 'Riconoscimento pronto',
+  'photo.unavailable':
+    'Riconoscimento non disponibile su questo dispositivo: inserisci le carte a mano.',
+  'photo.gallery': 'Dalla galleria',
+  'photo.melds': 'Foto dei giochi',
+  'photo.hand': 'Foto delle carte in mano a {name}',
+  'photo.review': 'Revisione della foto',
+  'photo.alt': 'Foto delle carte',
+  'photo.running': 'Riconoscimento delle carte…',
+  'photo.error': 'Riconoscimento non riuscito: {error}. Puoi inserire le carte a mano.',
+  'photo.timing': '{n} carte riconosciute in {s} s ({backend})',
+  'photo.none':
+    'Nessuna carta riconosciuta. Prova con più luce, più vicino, o un gioco alla volta.',
+  'photo.confidence': 'sicurezza {n}%',
+  'photo.lowHint':
+    '{n} carte hanno bassa sicurezza (in arancione): toccale per controllarle. Ogni carta può comparire una volta per angolo visibile: togli i doppioni.',
+  'photo.correct': 'Correggi {card}: scegli la carta giusta.',
+  'photo.remove': 'Rimuovi questa carta',
+  'photo.addMissing': 'Aggiungi carta mancante',
+  'photo.asMeld': 'Aggiungi come gioco',
+  'photo.asHand': 'Aggiungi alle carte in mano',
+
   'picker.suit': 'Seme',
   'picker.joker': 'Jolly',
   'picker.remove': 'Rimuovi {card}',

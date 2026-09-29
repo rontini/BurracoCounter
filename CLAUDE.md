@@ -1,8 +1,8 @@
-# BurracoScan – Specifica di progetto
+# BurraCount – Specifica di progetto
 
 Sep 29, 2026 · @Matteo
 
-BurracoScan è una web app che calcola i punti del burraco da una foto delle carte, costruita da un agente AI in autonomia seguendo questa specifica. Salvala come `CLAUDE.md` nella root del repository. Le attività marcate **\[UMANO\]** richiedono una persona; la sezione 13 va compilata prima di iniziare.
+BurraCount (nome di lavoro iniziale: BurracoScan) è una web app che calcola i punti del burraco da una foto delle carte, costruita da un agente AI in autonomia seguendo questa specifica. Salvala come `CLAUDE.md` nella root del repository. Le attività marcate **\[UMANO\]** richiedono una persona; la sezione 13 va compilata prima di iniziare.
 
 ## 0. Ruolo e regole di lavoro
 
@@ -42,7 +42,7 @@ Un solo codice web, eseguito interamente sul dispositivo. Non cambiare queste sc
 La logica sta in pacchetti indipendenti dall'interfaccia, così regole e visione si testano da sole.
 
 ```
-burraco-scan/
+burracount/
 ├─ CLAUDE.md            # questa specifica
 ├─ PROGRESS.md
 ├─ docs/decisions.md
@@ -201,7 +201,7 @@ Il rischio principale è la precisione del riconoscimento, non la piattaforma.
 
 Quattro scelte vanno fissate qui prima di M1; l'agente le usa come default del `RuleSet` e del modello.
 
-- [ ] Regolamento esatto: semipulito sì o no, valori di chiusura e pozzetto, Victory Point sì o no.
-- [ ] Marca del mazzo (Modiano, Dal Negro…).
-- [ ] Modalità di gioco più usate.
-- [ ] Nome dell'app.
+- [x] Regolamento esatto: semipulito **sì, 150 punti**; chiusura **+100**; pozzetto non preso **−100**; carte rimaste in mano **sottratte** con il loro valore; **Victory Point sì, ogni 4 smazzate** (la tabella VP va ancora fornita, vedi `PROGRESS.md`).
+- [ ] Marca del mazzo: non nota. Da verificare prima di M3 (foto del mazzo).
+- [x] Modalità di gioco più usata: **2v2**.
+- [x] Nome dell'app: **BurraCount**.

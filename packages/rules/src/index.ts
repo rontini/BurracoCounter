@@ -1,2 +1,8 @@
-// Il motore delle regole viene implementato in M1 (test prima del codice).
-export const RULES_PACKAGE = '@burracount/rules';
+export * from './types';
+export * from './cards';
+export * from './meld';
+export * from './burraco';
+export * from './score';
+export * from './match';
+export * from './ruleset';
+export * from './victory-points';

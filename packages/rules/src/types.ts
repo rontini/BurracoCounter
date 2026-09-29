@@ -1,6 +1,7 @@
 export type Suit = 'C' | 'D' | 'H' | 'S';
 
-export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'JOKER';
+export type Rank =
+  'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'JOKER';
 
 export interface Card {
   rank: Rank;

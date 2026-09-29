@@ -26,9 +26,12 @@ describe('classifyBurraco', () => {
   });
 
   it('pulito: a pinella in its natural position counts as a normal card', () => {
-    expect(classifyBurraco(meld('AS 2S 3S 4S 5S 6S 7S', (m) => m.wild === null), R)).toBe(
-      'pulito',
-    );
+    expect(
+      classifyBurraco(
+        meld('AS 2S 3S 4S 5S 6S 7S', (m) => m.wild === null),
+        R,
+      ),
+    ).toBe('pulito');
   });
 
   it('the same cards with the pinella read as wild are not pulito', () => {

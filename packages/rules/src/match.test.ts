@@ -4,14 +4,7 @@ import { createMatch, defaultTeams, scoreMatch } from './match';
 import { validateMeld } from './meld';
 import { DEFAULT_RULESET, TARGET_2005_RULESET } from './ruleset';
 import { parseVictoryPointTable, victoryPointsFor } from './victory-points';
-import type {
-  HandResult,
-  Match,
-  Meld,
-  RuleSet,
-  TeamHandResult,
-  VictoryPointTable,
-} from './types';
+import type { HandResult, Match, Meld, RuleSet, TeamHandResult, VictoryPointTable } from './types';
 
 function meld(s: string): Meld {
   const v = validateMeld(cards(s));
@@ -155,7 +148,7 @@ describe('scoreMatch – victory points', () => {
   });
 
   it('ends after the configured number of rounds', () => {
-    const r = [hand(300, 0), hand(0, 0), hand(0, 0), hand(0, 0)];
+    const r = [hand(330, 0), hand(0, 0), hand(0, 0), hand(0, 0)]; // diff 330 → ultima riga
     const s = scoreMatch(withHands(newMatch(rules(1, VP)), r));
     expect(s.finished).toBe(true);
     expect(s.victoryPoints).toEqual({ A: 20, B: 0 });
@@ -210,7 +203,7 @@ describe('victory point tables', () => {
       return r.errors;
     };
     expect(bad(null)[0]).toMatch(/oggetto/);
-    expect(bad({ name: 'x', rows: [] })[0]).toMatch(/righe/);
+    expect(bad({ name: 'x', rows: [] })[0]).toMatch(/almeno una riga/);
     expect(bad({ name: 3, rows: [{ maxDiff: null, winner: 1, loser: 0 }] })[0]).toMatch(/nome/);
     expect(
       bad({
@@ -228,9 +221,9 @@ describe('victory point tables', () => {
     expect(bad({ name: 'x', rows: [{ maxDiff: null, winner: 'a', loser: 0 }] }).join(' ')).toMatch(
       /numer/,
     );
-    expect(
-      bad({ name: 'x', rows: [{ maxDiff: null, winner: 0, loser: 5 }] }).join(' '),
-    ).toMatch(/vincitore/);
+    expect(bad({ name: 'x', rows: [{ maxDiff: null, winner: 0, loser: 5 }] }).join(' ')).toMatch(
+      /vincitore/,
+    );
     expect(
       bad({
         name: 'x',

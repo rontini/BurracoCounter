@@ -4,7 +4,7 @@
 import * as ort from 'onnxruntime-web/wasm';
 import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url';
 import wasmModuleUrl from 'onnxruntime-web/ort-wasm-simd-threaded.mjs?url';
-import { BASELINE_LABELS, fitWithin, recognizeTiles, type Tile } from '@burracount/vision';
+import { fitWithin, recognizeTiles, type Tile } from '@burracount/vision';
 import type { WorkerRequest, WorkerResponse } from './protocol';
 
 // CLAUDE.md §6: lato lungo al massimo 3000 px, riquadri 640 sovrapposti del 20–25%.
@@ -13,7 +13,14 @@ const TILE = 640;
 const OVERLAP = 0.22;
 const SCORE = 0.25;
 const IOU = 0.5;
-const MODEL_URL = `${import.meta.env.BASE_URL}models/cards-baseline.onnx`;
+const MODELS = `${import.meta.env.BASE_URL}models/`;
+
+/** Descrizione del modello in uso: si cambia modello sostituendo i file in public/models. */
+interface ModelManifest {
+  model: string;
+  name: string;
+  labels: string[];
+}
 
 ort.env.wasm.wasmPaths = { wasm: wasmUrl, mjs: wasmModuleUrl };
 // Multi-thread solo con cross-origin isolation (header COOP/COEP).
@@ -21,20 +28,24 @@ ort.env.wasm.numThreads = self.crossOriginIsolated
   ? Math.min(4, self.navigator.hardwareConcurrency || 1)
   : 1;
 
-let sessionPromise: Promise<{ session: ort.InferenceSession; backend: string }> | null = null;
+let sessionPromise: Promise<{
+  session: ort.InferenceSession;
+  backend: string;
+  labels: string[];
+}> | null = null;
 
 /**
  * Al primo avvio il service worker mette in cache lo stesso file in parallelo:
  * niente cache HTTP (evita errori di scrittura concorrente) e un secondo tentativo.
  * Dopo l'installazione il file arriva dalla cache del service worker.
  */
-async function fetchModel(): Promise<ArrayBuffer> {
+async function fetchFile(url: string): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const res = await fetch(MODEL_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Modello non disponibile (HTTP ${res.status})`);
-      return await res.arrayBuffer();
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`${url} non disponibile (HTTP ${res.status})`);
+      return res;
     } catch (err) {
       lastError = err;
     }
@@ -43,9 +54,12 @@ async function fetchModel(): Promise<ArrayBuffer> {
 }
 
 async function createSession() {
-  const model = await fetchModel();
+  const manifest = (await (await fetchFile(`${MODELS}cards.json`)).json()) as ModelManifest;
+  const model = await (await fetchFile(`${MODELS}${manifest.model}`)).arrayBuffer();
   const session = await ort.InferenceSession.create(model, { executionProviders: ['wasm'] });
-  return { session, backend: `wasm×${ort.env.wasm.numThreads}` };
+  const outputs = session.outputNames.length;
+  if (outputs !== 1) throw new Error(`Il modello ha ${outputs} uscite, ne serve una`);
+  return { session, backend: `wasm×${ort.env.wasm.numThreads}`, labels: manifest.labels };
 }
 
 function getSession() {
@@ -67,7 +81,7 @@ async function warmUp() {
 
 async function recognize(image: Blob, photoId: string) {
   const started = performance.now();
-  const { session, backend } = await getSession();
+  const { session, backend, labels } = await getSession();
   // imageOrientation applica la rotazione EXIF delle foto del telefono.
   const bitmap = await createImageBitmap(image, { imageOrientation: 'from-image' });
   const fit = fitWithin(bitmap.width, bitmap.height, MAX_SIDE);
@@ -107,7 +121,7 @@ async function recognize(image: Blob, photoId: string) {
     height: fit.height,
     scale: 1 / fit.scale,
     photoId,
-    labels: BASELINE_LABELS,
+    labels,
     tileSize: TILE,
     overlap: OVERLAP,
     scoreThreshold: SCORE,

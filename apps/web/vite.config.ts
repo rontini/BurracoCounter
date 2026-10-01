@@ -41,7 +41,7 @@ export default defineConfig({
       },
       workbox: {
         // App, WASM di ONNX Runtime e modello in cache al primo avvio: poi tutto offline.
-        globPatterns: ['**/*.{js,mjs,css,html,png,svg,wasm,onnx}'],
+        globPatterns: ['**/*.{js,mjs,css,html,png,svg,wasm,onnx,json}'],
         maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,

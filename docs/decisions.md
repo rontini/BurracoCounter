@@ -174,3 +174,33 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
   - **Raggruppamento:** collegamento singolo con distanza massima pari a 2 volte l'indice mediano; ogni gruppo passa da `validateMeld`.
   - **Carte in mano:** i gruppi che non formano un gioco valido vanno in mano. Il gruppo ha confermato che le carte in mano stanno di fianco e non formano scale o tris.
 - **Da fare in M4:** tarare le soglie sulle foto reali e gestire le carte ruotate e i ventagli fitti. Valutare YOLO11-obb se la geometria non basta, e misurare la percentuale di foto con punteggio esatto.
+
+## D21. Pipeline di M3: dalle foto del mazzo al modello
+
+- **Ritaglio** (`ml/generator/extract_cards.py`):
+  - trova la carta con soglia di colore, poi GrabCut con seme fisso, poi taglia le strisce di tavolo sui bordi;
+  - raddrizza la carta a 600×900;
+  - 4 foto con legno chiaro o in ombra hanno tagli manuali verificati a vista (`manual_trims.json`);
+  - le carte sono salvate in JPEG (7,6 MB in tutto); gli angoli arrotondati li ricrea `rounded_mask()`.
+- **Indici** (`index_boxes.py`):
+  - il riquadro dell'indice si trova automaticamente; quelli anomali (ombre, cornice delle figure) prendono la mediana del gruppo (carte, pinelle, jolly);
+  - **le carte Modiano hanno l'indice in tutti e quattro gli angoli**: il generatore li etichetta tutti.
+- **Generatore** (`synth.py`):
+  - scene 640×640, la scala dei riquadri usati nell'app;
+  - giochi a ventaglio, rotazioni, doppio mazzo, matte, carte sparse;
+  - sfondi procedurali e il tavolo reale delle foto;
+  - aumenti dei dati con albumentations;
+  - un indice coperto per più del 35% non viene etichettato.
+- **Classi:** le 52 nell'ordine del modello base, più `JOKER` (53).
+- **Validazione reale** (`ml/eval/real_val.py`): le 54 foto del mazzo, con le etichette dei quattro angoli. Non è il golden set (§7.4): misura il divario tra sintetico e reale.
+- **Addestramento** (`ml/notebooks/train_colab.ipynb`, [UMANO]):
+  - si esegue su Colab con GPU T4;
+  - si carica lo ZIP del repository, che è privato e quindi non clonabile senza token;
+  - checkpoint su Google Drive, con ripresa;
+  - `fliplr=0`, perché una carta non si vede mai specchiata.
+- **Scelta del modello:** YOLO11n in FP32 (circa 10 MB). YOLO11s (circa 36 MB) supera il limite di 15 MB e andrebbe quantizzato: lo si adotta solo se è nettamente migliore.
+- **App:** il worker legge modello e classi da `models/cards.json`. Per cambiare modello basta caricare i due file prodotti dal notebook.
+- **Da riprendere in M4:** con 4 indici per carta la deduplica di D20 va estesa agli angoli adiacenti (stessa riga o colonna), non solo a quelli opposti in diagonale.
+- **Alternative scartate:**
+  - addestrare in questo ambiente: solo CPU, ore per una singola epoca su 15.000 immagini;
+  - caricare il dataset già generato su Colab: 1–2 GB di upload contro i pochi MB delle carte ritagliate.

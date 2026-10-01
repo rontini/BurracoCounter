@@ -41,9 +41,18 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
   - Caratteristiche del mazzo: indici A/J/Q/K standard; le pinelle hanno una stellina accanto all'indice; due jolly con disegni diversi (stelle nere o rosse negli angoli, nessuna scritta); alcune foto sono orizzontali.
   - **Modello base sulle carte Modiano: 11/52 corrette** (37 non rilevate, 4 sbagliate), anche con una carta per foto. M3 serve.
 
+- **M3, preparazione completata** (2026-10-01, D21):
+  - ritaglio delle 54 carte e riquadri dei quattro indici;
+  - generatore sintetico verificato a vista;
+  - validazione reale con le foto del mazzo;
+  - prova di addestramento su CPU superata;
+  - notebook Colab;
+  - app pronta a caricare il nuovo modello da `models/cards.json`.
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
+- **Addestramento su Colab [UMANO]**: `ml/notebooks/train_colab.ipynb`.
 
 ## Bloccato / domande aperte [UMANO]
 
@@ -58,8 +67,6 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 4. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
 
 ## Prossimi passi
-
-0. **M3 in corso**: ritaglio automatico delle carte dalle foto del mazzo, poi generatore sintetico.
 
 1. Raccogliere i risultati del test sui telefoni (D14, D15) e correggere i problemi.
 2. **M3** appena arrivano le foto del mazzo:

@@ -202,6 +202,6 @@ Il rischio principale è la precisione del riconoscimento, non la piattaforma.
 Quattro scelte vanno fissate qui prima di M1; l'agente le usa come default del `RuleSet` e del modello.
 
 - [x] Regolamento esatto: semipulito **sì, 150 punti**; chiusura **+100**; pozzetto non preso **−100**; carte rimaste in mano **sottratte** con il loro valore; **Victory Point sì, ogni 4 smazzate** (la tabella VP va ancora fornita, vedi `PROGRESS.md`).
-- [ ] Marca del mazzo: non nota. Da verificare prima di M3 (foto del mazzo).
+- [x] Marca del mazzo: **Modiano** (foto delle singole carte disponibili, 2026-10-01).
 - [x] Modalità di gioco più usata: **2v2**.
 - [x] Nome dell'app: **BurraCount**.

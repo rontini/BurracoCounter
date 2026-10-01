@@ -152,3 +152,25 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
   - Indirizzo: <https://burracocounter.rontinim.workers.dev>.
 - **Build su Cloudflare:** pnpm si esegue tramite `npx -y pnpm@10.33.0`, perché l'immagine di build ha pnpm solo per alcune versioni di Node. Non si imposta `NODE_VERSION = 22`: installerebbe la 22.23.3, che ne è priva.
 - **Alternative scartate:** creare un progetto Pages classico. È possibile, ma non è più la procedura proposta dal pannello, e il risultato per l'app è identico.
+
+## D19. Modalità di inserimento semplice (richiesta del gruppo, 2026-10-01)
+
+- **Contesto:** al tavolo il gruppo vuole un flusso minimo: una foto e il punteggio.
+- **Decisione:**
+  - `Match.entryMode`: `full` (default, come prima) o `simple`. Si sceglie in "Nuova partita"; il default si imposta nelle Impostazioni. Le partite già salvate restano `full`.
+  - In modalità semplice si scatta **una foto per squadra**, con le carte in mano appoggiate di fianco ai giochi.
+  - Si risponde a **«Chi ha chiuso?»** (una squadra o nessuno).
+  - Il **pozzetto è considerato preso**, con una casella per l'eccezione.
+  - Le carte in mano della squadra sono attribuite al primo giocatore: per il punteggio conta solo la somma.
+  - Il motore delle regole non cambia.
+- **Limite dichiarato:** chiusura e pozzetto non si vedono dalla foto, quindi non si possono eliminare senza falsare il punteggio. Il gruppo ha accettato «un tocco per la chiusura, pozzetto preso di default».
+- **Uscita:** «Passa all'inserimento completo» porta i dati raccolti nel modulo completo. Una smazzata già salvata si modifica sempre con il modulo completo.
+
+## D20. Deduplica e raggruppamento v0 anticipati da M4
+
+- **Contesto:** la modalità semplice deve proporre giochi e carte in mano da una sola foto (§6.4–6.5).
+- **Decisione:** euristica in `packages/vision/src/table.ts`, con soglie in multipli della dimensione dell'indice:
+  - **Deduplica:** due indici uguali sono la stessa carta se stanno ad angoli opposti, cioè a 2,5–7 volte l'indice lungo un asse e a 0,8–5 lungo l'altro. Le fusioni sono segnalate in revisione con ⧉.
+  - **Raggruppamento:** collegamento singolo con distanza massima pari a 2 volte l'indice mediano; ogni gruppo passa da `validateMeld`.
+  - **Carte in mano:** i gruppi che non formano un gioco valido vanno in mano. Il gruppo ha confermato che le carte in mano stanno di fianco e non formano scale o tris.
+- **Da fare in M4:** tarare le soglie sulle foto reali e gestire le carte ruotate e i ventagli fitti. Valutare YOLO11-obb se la geometria non basta, e misurare la percentuale di foto con punteggio esatto.

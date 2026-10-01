@@ -34,6 +34,9 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 - **Si apre dal telefono** (2026-09-29): confermato dal gruppo. Aggiunti messaggio di caricamento e schermata di errore al posto della pagina bianca.
 - **M3, preparazione**: istruzioni e checklist per le foto del mazzo in `ml/photos/ISTRUZIONI.md`, controllo completezza con `ml/photos/check_deck.py`.
 
+- **Modalità semplice** (2026-10-01, D19): una foto per squadra, «Chi ha chiuso?», pozzetto preso di default; scelta per partita, default in Impostazioni. Deduplica e raggruppamento v0 anticipati da M4 (D20). E2E verde.
+- **Mazzo**: Modiano (CLAUDE.md §13).
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
@@ -46,7 +49,7 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
    - "wasm×N" con N > 1 nella revisione della foto;
    - tempo del riconoscimento;
    - eventuali problemi.
-2. **Foto del mazzo per M3** (fine-tuning, da ricordare): seguire `ml/photos/ISTRUZIONI.md`. Servono 52 carte + jolly, retro e scatola.
+2. **Foto del mazzo Modiano per M3**: in arrivo sul branch `foto-modiano` (`ml/photos/deck/`), scattate in ordine e da rinominare: ♥ A–K, ♦, ♣, ♠, jolly, retro, scatola. L'ordine è da confermare.
 3. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando.
 4. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
 5. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.

@@ -102,6 +102,12 @@ export interface RuleSet {
 
 export type GameMode = '2v2' | '1v1' | '1v1v1';
 
+/**
+ * full: inserimento completo (foto o carte a mano, chiusura e pozzetto per squadra).
+ * simple: una foto per squadra, un tocco per chi ha chiuso, pozzetto preso di default.
+ */
+export type EntryMode = 'full' | 'simple';
+
 export interface Team {
   id: string;
   name: string;
@@ -139,6 +145,8 @@ export interface Match {
   name: string;
   createdAt: string;
   mode: GameMode;
+  /** Assente nelle partite salvate prima della modalità semplice: vale 'full'. */
+  entryMode?: EntryMode;
   teams: Team[];
   ruleSet: RuleSet;
   hands: PlayedHand[];

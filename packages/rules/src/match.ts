@@ -1,6 +1,6 @@
 import { scoreHand } from './score';
 import { victoryPointsFor } from './victory-points';
-import type { GameMode, Match, RuleSet, Team, TeamScore } from './types';
+import type { EntryMode, GameMode, Match, RuleSet, Team, TeamScore } from './types';
 
 export function defaultTeams(mode: GameMode): Team[] {
   switch (mode) {
@@ -30,12 +30,14 @@ export function createMatch(args: {
   teams: Team[];
   ruleSet: RuleSet;
   now: string;
+  entryMode?: EntryMode;
 }): Match {
   return {
     id: args.id,
     name: args.name,
     createdAt: args.now,
     mode: args.mode,
+    entryMode: args.entryMode ?? 'full',
     teams: args.teams,
     ruleSet: args.ruleSet,
     hands: [],

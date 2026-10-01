@@ -72,6 +72,7 @@ describe('createMatch', () => {
     expect(m.hands).toEqual([]);
     expect(m.finishedAt).toBeNull();
     expect(m.createdAt).toBe('2026-01-01T00:00:00Z');
+    expect(m.entryMode).toBe('full');
   });
 });
 

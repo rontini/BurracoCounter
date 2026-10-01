@@ -36,6 +36,10 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 
 - **Modalità semplice** (2026-10-01, D19): una foto per squadra, «Chi ha chiuso?», pozzetto preso di default; scelta per partita, default in Impostazioni. Deduplica e raggruppamento v0 anticipati da M4 (D20). E2E verde.
 - **Mazzo**: Modiano (CLAUDE.md §13).
+- **Foto del mazzo Modiano** (2026-10-01):
+  - 52 carte + 2 jolly in `ml/photos/deck/`, rinominate e verificate a vista; corrispondenza con i file originali in `ORIGINE.md`.
+  - Caratteristiche del mazzo: indici A/J/Q/K standard; le pinelle hanno una stellina accanto all'indice; due jolly con disegni diversi (stelle nere o rosse negli angoli, nessuna scritta); alcune foto sono orizzontali.
+  - **Modello base sulle carte Modiano: 11/52 corrette** (37 non rilevate, 4 sbagliate), anche con una carta per foto. M3 serve.
 
 ## In corso
 
@@ -49,12 +53,13 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
    - "wasm×N" con N > 1 nella revisione della foto;
    - tempo del riconoscimento;
    - eventuali problemi.
-2. **Foto del mazzo Modiano per M3**: in arrivo sul branch `foto-modiano` (`ml/photos/deck/`), scattate in ordine e da rinominare: ♥ A–K, ♦, ♣, ♠, jolly, retro, scatola. L'ordine è da confermare.
-3. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando.
-4. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
-5. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
+2. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando.
+3. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
+4. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
 
 ## Prossimi passi
+
+0. **M3 in corso**: ritaglio automatico delle carte dalle foto del mazzo, poi generatore sintetico.
 
 1. Raccogliere i risultati del test sui telefoni (D14, D15) e correggere i problemi.
 2. **M3** appena arrivano le foto del mazzo:

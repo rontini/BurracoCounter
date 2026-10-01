@@ -204,3 +204,19 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 - **Alternative scartate:**
   - addestrare in questo ambiente: solo CPU, ore per una singola epoca su 15.000 immagini;
   - caricare il dataset già generato su Colab: 1–2 GB di upload contro i pochi MB delle carte ritagliate.
+
+## D22. Modello Modiano (M3, primo addestramento, 2026-10-01)
+
+- **Addestramento:** YOLO11n, 53 classi, sul dataset sintetico di D21, con il notebook Colab lanciato dal gruppo. File: `apps/web/public/models/cards-modiano.onnx` (10,6 MB, FP32), con `cards.json`.
+- **Risultati:**
+  - **54/54** foto vere del mazzo riconosciute (confidenza mediana 0,94); il modello base faceva 11/52. Ottimista: le carte del dataset sono ritagliate da queste stesse foto.
+  - Parità Python/browser verificata nell'E2E.
+  - Foto 2400×1800 riconosciuta in 2,8 s.
+- **Limiti visti** sul collage di prova (carte molto grandi):
+  - una carta girata di 90° e molto grande (10♣) non viene riconosciuta, e compaiono falsi 3♦, 4♦ e jolly con confidenza bassa;
+  - doppioni a confidenza media lungo il confine dei riquadri.
+- **Per il prossimo addestramento:**
+  - larghezza delle carte fino a circa 600 px (primi piani), non solo 70–320;
+  - più carte a 90°;
+  - foto reali dei tavoli per il fine-tuning e per il golden set (§7.4).
+- **App:** il modello base esce dall'app, così si scaricano 10 MB in meno. Le foto di prova E2E sono ora carte Modiano (`ml/eval/make_fixtures.py`). Il collage si fa con `pad` per non tagliare gli indici.

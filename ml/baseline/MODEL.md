@@ -33,3 +33,5 @@ python export_baseline.py
 Lo script rigenera il modello, le foto di prova in `apps/web/e2e/fixtures/` e `reference.json`: i rilevamenti ottenuti in Python con onnxruntime, che i test E2E confrontano con quelli del browser (§7.6).
 
 Le foto di prova vengono da [drFarid/French-Playing-Cards](https://huggingface.co/datasets/drFarid/French-Playing-Cards) (licenza MIT).
+
+> **Storico.** Dal 2026-10-01 l'app usa `cards-modiano.onnx`, addestrato in M3 (vedi `docs/decisions.md`, D22). Questo modello resta solo come riferimento.

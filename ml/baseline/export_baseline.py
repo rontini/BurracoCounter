@@ -1,4 +1,7 @@
-"""Modello base per M2: scarica, esporta in ONNX e prepara i riferimenti.
+"""STORICO (M2) – il modello base non è più usato dall'app: dal 2026-10-01 c'è cards-modiano.onnx (M3).
+Le foto di prova e i riferimenti attuali li genera ml/eval/make_fixtures.py.
+
+Modello base per M2: scarica, esporta in ONNX e prepara i riferimenti.
 
 Uso (da ml/baseline, con un venv):
     pip install -r requirements.txt

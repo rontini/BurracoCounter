@@ -49,10 +49,11 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
   - notebook Colab;
   - app pronta a caricare il nuovo modello da `models/cards.json`.
 
+- **M3, primo modello Modiano** (2026-10-01, D22): 54/54 foto del mazzo riconosciute (il modello base ne riconosceva 11/52), attivo nell'app. Limiti: carte molto grandi o girate di 90°.
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
-- **Addestramento su Colab [UMANO]**: `ml/notebooks/train_colab.ipynb`.
 
 ## Bloccato / domande aperte [UMANO]
 
@@ -61,17 +62,19 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
    - l'app funziona offline;
    - "wasm×N" con N > 1 nella revisione della foto;
    - tempo del riconoscimento;
-   - eventuali problemi.
-2. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando.
+   - riconoscimento delle carte Modiano al tavolo.
+2. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando, una foto per squadra come in modalità semplice.
 3. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
 4. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
 
 ## Prossimi passi
 
-1. Raccogliere i risultati del test sui telefoni (D14, D15) e correggere i problemi.
-2. **M3** appena arrivano le foto del mazzo:
-   - ritaglio automatico degli angoli;
-   - generatore sintetico (`ml/generator`), 20–50 mila immagini con ventagli e doppio mazzo;
-   - notebook Colab che confronta YOLO11n e YOLO11s, compreso il jolly;
-   - export ONNX e valutazione sul golden set (soglia ≥97% di carte corrette).
-3. Poi **M4**: deduplica degli angoli e raggruppamento in giochi.
+1. **M4**:
+   - deduplica per carte con 4 indici (angoli adiacenti, non solo diagonali);
+   - doppioni lungo il confine dei riquadri;
+   - raggruppamento in giochi tarato sulle foto vere.
+2. **M3, secondo addestramento**:
+   - carte fino a circa 600 px di larghezza;
+   - più rotazioni a 90°;
+   - fine-tuning sulle foto dei tavoli.
+3. **Golden set** con le foto dei tavoli: misurare la percentuale di carte corrette (≥97%) e di foto con punteggio esatto.

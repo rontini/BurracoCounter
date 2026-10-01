@@ -268,8 +268,12 @@ def main() -> None:
         (out / split / "images").mkdir(parents=True, exist_ok=True)
         (out / split / "labels").mkdir(parents=True, exist_ok=True)
         jobs += [(str(out), split, i) for i in range(n)]
+    total = 0
     with Pool(args.workers, initializer=_init) as pool:
-        total = sum(pool.imap_unordered(make, jobs, chunksize=16))
+        for done, n in enumerate(pool.imap_unordered(make, jobs, chunksize=16), start=1):
+            total += n
+            if done % 500 == 0 or done == len(jobs):
+                print(f"{done}/{len(jobs)} immagini", flush=True)
     (out / "data.yaml").write_text(
         f"path: {out.resolve()}\ntrain: train/images\nval: val/images\nnames:\n"
         + "".join(f"  {i}: {n}\n" for i, n in enumerate(CLASSES))

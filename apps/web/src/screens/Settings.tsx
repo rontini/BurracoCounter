@@ -1,10 +1,12 @@
 import {
   DEFAULT_VP_TABLE,
   parseVictoryPointTable,
+  type EntryMode,
   type VictoryPointTable,
 } from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState, type ChangeEvent } from 'react';
+import { EntryModeChoice } from '../components/EntryModeChoice';
 import { VpTableEditor } from '../components/VpTableEditor';
 import { clearSetting, db, setSetting } from '../db';
 import { t } from '../i18n';
@@ -15,6 +17,10 @@ export function Settings() {
   // undefined = caricamento, null = nessuna tabella salvata (vale la predefinita).
   const saved = useLiveQuery(
     async () => ((await db.settings.get('vpTable'))?.value as VictoryPointTable | null) ?? null,
+    [],
+  );
+  const entryMode = useLiveQuery(
+    async () => ((await db.settings.get('entryMode'))?.value as EntryMode | undefined) ?? 'full',
     [],
   );
   const [message, setMessage] = useState<string | null>(null);
@@ -57,6 +63,18 @@ export function Settings() {
         </a>
         <h1>{t('settings.title')}</h1>
       </header>
+
+      {entryMode && (
+        <section>
+          <h2>{t('entry.title')}</h2>
+          <p className="hint">{t('settings.entryIntro')}</p>
+          <EntryModeChoice
+            value={entryMode}
+            onChange={(m) => void setSetting('entryMode', m)}
+            name="default-entry-mode"
+          />
+        </section>
+      )}
 
       <section>
         <h2>{t('rules.vpTable')}</h2>

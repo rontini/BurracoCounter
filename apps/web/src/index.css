@@ -842,3 +842,36 @@ button.card-chip {
   color: var(--danger, #b3261e);
   font-size: 0.85rem;
 }
+
+/* Modalità semplice */
+.simple-team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.simple-team h2,
+.simple-team p {
+  margin: 0;
+}
+
+.segmented.wrap {
+  flex-wrap: wrap;
+}
+
+.segmented.wrap label {
+  flex: 1 1 6rem;
+}
+
+.overlay .box.hand rect {
+  stroke: #4da3ff;
+  stroke-dasharray: 4 3;
+}
+
+.overlay .box.hand text {
+  fill: #4da3ff;
+}

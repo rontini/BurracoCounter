@@ -138,6 +138,32 @@ export const it = {
   'burraco.semipulito': 'semipulito',
   'burraco.sporco': 'sporco',
 
+  'simple.photo': 'Foto di {name}',
+  'simple.photoHint':
+    'Fotografa i giochi calati con le carte rimaste in mano appoggiate di fianco.',
+  'simple.teamSummary': '{melds} giochi, {hand} carte in mano',
+  'simple.whoClosed': 'Chi ha chiuso?',
+  'simple.nobody': 'Nessuno',
+  'simple.pozzettoQuestion': 'Qualcuno non ha preso il pozzetto?',
+  'simple.noPozzetto': '{name} non ha preso il pozzetto',
+  'simple.switchToFull': "Passa all'inserimento completo",
+  'simple.reviewHint':
+    'Le carte vicine che formano una scala o un tris sono giochi; le altre sono in mano. Tocca una carta per correggerla o spostarla.',
+  'simple.inHand': 'Carte in mano',
+  'simple.addCard': 'Aggiungi carta',
+  'simple.newMeld': 'Nuovo gioco',
+  'simple.burraco': 'burraco {kind}',
+  'simple.confirmTeam': 'Conferma',
+  'entry.title': 'Inserimento delle smazzate',
+  'entry.simple': 'Semplice (una foto)',
+  'entry.full': 'Completo',
+  'entry.simpleHelp':
+    'Una foto per squadra con le carte in mano di fianco, poi solo «chi ha chiuso?».',
+  'entry.fullHelp':
+    'Giochi e carte in mano separati, a mano o con foto, chiusura e pozzetto per squadra.',
+  'settings.entryIntro':
+    'Modalità proposta per le nuove partite (si può cambiare partita per partita).',
+
   'pwa.update': 'È disponibile una nuova versione di BurraCount.',
   'pwa.updateNow': 'Aggiorna',
   'pwa.later': 'Più tardi',

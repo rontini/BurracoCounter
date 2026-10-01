@@ -4,11 +4,13 @@ import {
   DEFAULT_VP_TABLE,
   defaultTeams,
   TARGET_2005_RULESET,
+  type EntryMode,
   type GameMode,
   type RuleSet,
   type Team,
 } from '@burracount/rules';
 import { useEffect, useId, useState, type FormEvent } from 'react';
+import { EntryModeChoice } from '../components/EntryModeChoice';
 import { RulesEditor } from '../components/RulesEditor';
 import { getSetting, requestPersistentStorage, saveMatch } from '../db';
 import { t } from '../i18n';
@@ -27,11 +29,15 @@ export function NewMatch() {
   const [mode, setMode] = useState<GameMode>('2v2');
   const [teams, setTeams] = useState<Team[]>(() => defaultTeams('2v2'));
   const [rules, setRules] = useState<RuleSet>(DEFAULT_RULESET);
+  const [entryMode, setEntryMode] = useState<EntryMode>('full');
   const preset = rules.endCondition.type === 'target' ? 'target' : 'vp';
 
   // La tabella VP salvata nelle impostazioni diventa il default.
   useEffect(() => {
     let cancelled = false;
+    void getSetting('entryMode').then((m) => {
+      if (!cancelled && m) setEntryMode(m);
+    });
     void getSetting('vpTable').then((table) => {
       if (cancelled || !table) return;
       setRules((r) =>
@@ -81,6 +87,7 @@ export function NewMatch() {
       teams: finalTeams,
       ruleSet: rules,
       now: new Date().toISOString(),
+      entryMode,
     });
     await saveMatch(match);
     void requestPersistentStorage();
@@ -139,6 +146,11 @@ export function NewMatch() {
             ))}
           </div>
         ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>{t('entry.title')}</legend>
+        <EntryModeChoice value={entryMode} onChange={setEntryMode} name="entry-mode" />
       </fieldset>
 
       <fieldset>

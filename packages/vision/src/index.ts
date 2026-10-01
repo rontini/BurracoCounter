@@ -4,3 +4,4 @@ export * from './yolo';
 export * from './labels';
 export * from './pipeline';
 export * from './recognizer';
+export * from './table';

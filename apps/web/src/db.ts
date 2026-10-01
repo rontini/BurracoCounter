@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { Match, VictoryPointTable } from '@burracount/rules';
+import type { EntryMode, Match, VictoryPointTable } from '@burracount/rules';
 
 export interface StoredMatch extends Match {
   updatedAt: string;
@@ -9,6 +9,8 @@ export interface StoredMatch extends Match {
 export interface Settings {
   /** Tabella VP usata come default nelle nuove partite. */
   vpTable: VictoryPointTable | null;
+  /** Modalità di inserimento proposta nelle nuove partite. */
+  entryMode: EntryMode;
 }
 
 interface SettingRow<K extends keyof Settings = keyof Settings> {

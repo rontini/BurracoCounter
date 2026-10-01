@@ -1,11 +1,12 @@
 import type { BoundingBox, Card } from '@burracount/rules';
 import type { RecognitionResult } from '@burracount/vision';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { t } from '../i18n';
 import { cardName, cardShort, isRed } from '../lib/cardLabel';
 import { newId } from '../lib/id';
 import { getRecognizer } from '../vision/workerRecognizer';
 import { CardPicker } from './CardPicker';
+import { PhotoOverlay } from './PhotoOverlay';
 
 /** Sotto questa confidenza la carta va controllata. */
 export const LOW_CONFIDENCE = 0.5;
@@ -31,12 +32,9 @@ interface Props {
 }
 
 export function PhotoReview({ photo, confirmLabel, onConfirm, onCancel }: Props) {
-  const url = useMemo(() => URL.createObjectURL(photo), [photo]);
   const [state, setState] = useState<State>({ phase: 'running' });
   const [items, setItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<number | 'new' | null>(null);
-
-  useEffect(() => () => URL.revokeObjectURL(url), [url]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,38 +71,28 @@ export function PhotoReview({ photo, confirmLabel, onConfirm, onCancel }: Props)
   return (
     <section className="review" aria-label={t('photo.review')}>
       <h2>{t('photo.review')}</h2>
-      <div className="photo-frame">
-        <img src={url} alt={t('photo.alt')} />
-        {result && (
-          <svg
-            className="overlay"
-            viewBox={`0 0 ${result.width} ${result.height}`}
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            {items.map((it, i) =>
-              it.bbox ? (
-                <g key={i} className={overlayClass(it, i === selected)}>
-                  <rect
-                    x={it.bbox.x}
-                    y={it.bbox.y}
-                    width={it.bbox.width}
-                    height={it.bbox.height}
-                    strokeWidth={Math.max(result.width, result.height) / 300}
-                  />
-                  <text
-                    x={it.bbox.x}
-                    y={it.bbox.y - result.height / 150}
-                    fontSize={Math.max(result.width, result.height) / 40}
-                  >
-                    {cardShort(it.card)}
-                  </text>
-                </g>
-              ) : null,
-            )}
-          </svg>
+      <PhotoOverlay
+        photo={photo}
+        size={result}
+        boxes={items.flatMap((it, i) =>
+          it.bbox
+            ? [
+                {
+                  bbox: it.bbox,
+                  label: cardShort(it.card),
+                  tone:
+                    i === selected
+                      ? 'selected'
+                      : it.confidence === null
+                        ? 'fixed'
+                        : lowConfidence(it)
+                          ? 'low'
+                          : 'ok',
+                } as const,
+              ]
+            : [],
         )}
-      </div>
+      />
 
       {state.phase === 'running' && (
         <p role="status" className="muted">
@@ -210,10 +198,4 @@ function lowConfidence(it: Item): boolean {
 
 function lowCount(items: Item[]): number {
   return items.filter(lowConfidence).length;
-}
-
-function overlayClass(it: Item, selected: boolean): string {
-  if (selected) return 'box selected';
-  if (it.confidence === null) return 'box fixed';
-  return lowConfidence(it) ? 'box low' : 'box';
 }

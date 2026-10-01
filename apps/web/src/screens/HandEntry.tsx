@@ -1,15 +1,15 @@
-import { scoreHand, type Card, type Match, type Meld } from '@burracount/rules';
+import { scoreHand, type Card, type Match } from '@burracount/rules';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useState } from 'react';
-import { getRecognizer } from '../vision/workerRecognizer';
+import { useState } from 'react';
 import { CardChip } from '../components/CardChip';
 import { CardPicker } from '../components/CardPicker';
+import { ModelStatusLine } from '../components/ModelStatusLine';
 import { PhotoInput } from '../components/PhotoInput';
 import { PhotoReview } from '../components/PhotoReview';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
-import { db, saveMatch } from '../db';
+import { db } from '../db';
 import { t } from '../i18n';
-import { cardShort } from '../lib/cardLabel';
+import { describeMeld } from '../lib/describeMeld';
 import {
   draftProblems,
   draftsFromResult,
@@ -19,8 +19,10 @@ import {
   type MeldDraft,
   type TeamDraft,
 } from '../lib/handDraft';
-import { newId } from '../lib/id';
 import { href, navigate } from '../lib/router';
+import { saveHand } from '../lib/saveHand';
+import { useModelStatus, type ModelStatus } from '../lib/useModelStatus';
+import { SimpleHandForm } from './SimpleHandForm';
 
 export function HandEntry({ id, handId }: { id: string; handId: string | null }) {
   const match = useLiveQuery(() => db.matches.get(id), [id], null);
@@ -32,48 +34,43 @@ export function HandEntry({ id, handId }: { id: string; handId: string | null })
       </div>
     );
   }
-  return <HandForm key={handId ?? 'new'} match={match} handId={handId} />;
+  return <HandScreen key={handId ?? 'new'} match={match} handId={handId} />;
+}
+
+/** Modalità semplice per le nuove smazzate, se scelta; si può sempre passare a quella completa. */
+function HandScreen({ match, handId }: { match: Match; handId: string | null }) {
+  const model = useModelStatus();
+  const [full, setFull] = useState<TeamDraft[] | null>(null);
+  if (match.entryMode === 'simple' && !handId && !full) {
+    return <SimpleHandForm match={match} model={model} onSwitchToFull={setFull} />;
+  }
+  return <HandForm match={match} handId={handId} model={model} initialDrafts={full} />;
 }
 
 type Target = { type: 'meld'; index: number } | { type: 'hand'; player: number };
 
-function describe(meld: Meld): string {
-  const kind = meld.kind === 'run' ? t('hand.run') : t('hand.set');
-  const cards = meld.cards.map(cardShort).join(' ');
-  const note = meld.wild
-    ? t('hand.wildAs', { rank: meld.wild.represents })
-    : meld.cards.some((c) => c.rank === '2')
-      ? t('hand.natural')
-      : '';
-  return `${kind}: ${cards}${note ? ` (${note})` : ''}`;
-}
-
-function HandForm({ match, handId }: { match: Match; handId: string | null }) {
+function HandForm({
+  match,
+  handId,
+  model,
+  initialDrafts,
+}: {
+  match: Match;
+  handId: string | null;
+  model: ModelStatus;
+  initialDrafts: TeamDraft[] | null;
+}) {
   const existing = handId ? match.hands.find((h) => h.id === handId) : undefined;
   const handNumber = existing ? match.hands.indexOf(existing) + 1 : match.hands.length + 1;
   const allowTwos = match.ruleSet.allowSetOfTwos;
 
-  const [drafts, setDrafts] = useState<TeamDraft[]>(() =>
-    existing ? draftsFromResult(match, existing.result) : emptyDrafts(match),
+  const [drafts, setDrafts] = useState<TeamDraft[]>(
+    () =>
+      initialDrafts ?? (existing ? draftsFromResult(match, existing.result) : emptyDrafts(match)),
   );
   const [tab, setTab] = useState<number | 'summary'>(0);
   const [target, setTarget] = useState<Target | null>(null);
   const [photo, setPhoto] = useState<{ blob: Blob; target: Target } | null>(null);
-  const [model, setModel] = useState<'loading' | 'ready' | 'error'>('loading');
-
-  useEffect(() => {
-    let cancelled = false;
-    getRecognizer()
-      .warmUp()
-      .then(
-        () => !cancelled && setModel('ready'),
-        () => !cancelled && setModel('error'),
-      );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const teamIndex = tab === 'summary' ? 0 : tab;
   const draft = drafts[teamIndex]!;
   const team = match.teams[teamIndex]!;
@@ -126,15 +123,7 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
 
   async function save() {
     if (!result) return;
-    const hand = {
-      id: existing?.id ?? newId(),
-      playedAt: existing?.playedAt ?? new Date().toISOString(),
-      result,
-    };
-    const hands = existing
-      ? match.hands.map((h) => (h.id === existing.id ? hand : h))
-      : [...match.hands, hand];
-    await saveMatch({ ...match, hands });
+    await saveHand(match, result, existing?.id);
     navigate({ name: 'match', id: match.id });
   }
 
@@ -215,13 +204,7 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
       ) : (
         <section aria-label={team.name}>
           <h2>{t('hand.melds')}</h2>
-          <p className="muted small" role="status" data-testid="model-status" data-state={model}>
-            {model === 'loading'
-              ? t('photo.loading')
-              : model === 'ready'
-                ? t('photo.ready')
-                : t('photo.unavailable')}
-          </p>
+          <ModelStatusLine status={model} />
           <PhotoInput
             label={t('photo.melds')}
             onPhoto={(blob) => {
@@ -284,7 +267,7 @@ function HandForm({ match, handId }: { match: Match; handId: string | null }) {
                           checked={m.choice === k}
                           onChange={() => updateMeld(i, (d) => ({ ...d, choice: k }))}
                         />
-                        <span>{describe(interp)}</span>
+                        <span>{describeMeld(interp)}</span>
                       </label>
                     ))}
                   </fieldset>

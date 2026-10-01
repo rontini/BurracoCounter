@@ -1,0 +1,3 @@
+# Dataset generati (si rigenerano con synth.py)
+out/
+__pycache__/

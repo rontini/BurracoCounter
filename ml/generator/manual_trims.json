@@ -1,0 +1,15 @@
+{
+  "_nota": "Tagli manuali (frazione del lato della carta raddrizzata) dove la segmentazione automatica lascia strisce di tavolo. Verificati a vista il 2026-10-01.",
+  "2H": {
+    "top": 0.13
+  },
+  "3C": {
+    "left": 0.105
+  },
+  "4C": {
+    "left": 0.075
+  },
+  "9D": {
+    "top": 0.015
+  }
+}

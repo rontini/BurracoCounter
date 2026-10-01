@@ -1,6 +1,6 @@
 {
-  "model": "cards-baseline.onnx",
-  "name": "YOLO11n pubblico (52 classi, senza jolly)",
+  "model": "cards-modiano.onnx",
+  "name": "yolo11n Modiano (53 classi)",
   "labels": [
     "10C",
     "10D",
@@ -53,6 +53,7 @@
     "QC",
     "QD",
     "QH",
-    "QS"
+    "QS",
+    "JOKER"
   ]
 }

@@ -74,6 +74,17 @@ describe('scoreTeam', () => {
     expect(s.total).toBe(-40);
   });
 
+  it('subtracts hand points entered by hand, together with the hand cards', () => {
+    const s = scoreTeam(team({ melds: [meld('KH KS KD')], hands: [cards('AS'), []], handPoints: 45 }), R);
+    expect(s.handPenalty).toBe(15 + 45);
+    expect(s.total).toBe(30 - 60);
+  });
+
+  it('ignores negative or missing hand points', () => {
+    expect(scoreTeam(team({ handPoints: -20 }), R).handPenalty).toBe(0);
+    expect(scoreTeam(team({}), R).handPenalty).toBe(0);
+  });
+
   it('full example: burraco pulito, sporco, closed', () => {
     const s = scoreTeam(
       team({

@@ -45,6 +45,8 @@ export interface TeamHandResult {
   melds: Meld[];
   /** Carte rimaste in mano, una lista per giocatore. */
   hands: Card[][];
+  /** Punti delle carte in mano contati a mano, facoltativi (modalità semplice). */
+  handPoints?: number;
   closed: boolean;
   pozzettoTaken: boolean;
 }

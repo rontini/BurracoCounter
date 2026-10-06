@@ -6,3 +6,4 @@ export * from './score';
 export * from './match';
 export * from './ruleset';
 export * from './victory-points';
+export * from './infer';

@@ -75,7 +75,10 @@ describe('scoreTeam', () => {
   });
 
   it('subtracts hand points entered by hand, together with the hand cards', () => {
-    const s = scoreTeam(team({ melds: [meld('KH KS KD')], hands: [cards('AS'), []], handPoints: 45 }), R);
+    const s = scoreTeam(
+      team({ melds: [meld('KH KS KD')], hands: [cards('AS'), []], handPoints: 45 }),
+      R,
+    );
     expect(s.handPenalty).toBe(15 + 45);
     expect(s.total).toBe(30 - 60);
   });

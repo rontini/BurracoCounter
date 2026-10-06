@@ -4,7 +4,8 @@ import { completeMeld } from './infer';
 import type { Card } from './types';
 
 /** "5H ? 7H" → [5H, null, 7H] */
-const slots = (s: string): (Card | null)[] => s.split(' ').map((t) => (t === '?' ? null : parseCard(t)));
+const slots = (s: string): (Card | null)[] =>
+  s.split(' ').map((t) => (t === '?' ? null : parseCard(t)));
 const show = (cs: Card[]) => cs.map(formatCard).join(' ');
 const options = (fix: ReturnType<typeof completeMeld>, i = 0) =>
   fix!.deduced[i]!.options.map(formatCard);

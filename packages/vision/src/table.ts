@@ -1,18 +1,40 @@
 import {
+  completeMeld,
   formatCard,
-  validateMeld,
+  type Card,
   type Detection,
-  type MeldValidation,
+  type MeldCompletion,
   type RuleSet,
 } from '@burracount/rules';
 
 /**
- * Prima versione (euristica) di deduplica e raggruppamento, CLAUDE.md §6.4–6.5.
- * Le soglie sono in multipli della dimensione dell'indice d'angolo, così non
- * dipendono dalla risoluzione della foto. Da tarare sulle foto reali (M4).
+ * Deduplica e raggruppamento in giochi (CLAUDE.md §6.4–6.5), tarati sulle
+ * carte Modiano: l'indice è in tutti e quattro gli angoli. Le distanze sono
+ * in multipli dell'altezza dell'indice, così non dipendono dalla risoluzione.
  */
 
-const center = (d: Detection) => ({
+/**
+ * Distanza dal centro dell'indice in alto a sinistra a quello in alto a destra
+ * (across) e in basso a sinistra (down), misurata sul mazzo Modiano. Pinelle e
+ * jolly hanno l'indice con la stellina, di altezza diversa.
+ */
+const GEOMETRY = {
+  normal: { across: 2.42, down: 3.34 },
+  pinella: { across: 1.78, down: 2.14 },
+  joker: { across: 5.92, down: 9.69 },
+};
+/** Tolleranza in frazione della distanza verticale (prospettiva, rotazioni). */
+const TOLERANCE = 0.3;
+/** Due indici più vicini di così sono carte diverse (ventaglio). */
+const MIN_SAME_CARD = 1.5;
+/** Raggio del raggruppamento: indici più vicini stanno nello stesso gioco. */
+const CLUSTER_EPS = 2.5;
+/** Sotto questa confidenza una carta è la prima candidata alla deduzione. */
+const DOUBTFUL = 0.6;
+
+type Point = { x: number; y: number };
+
+const center = (d: Detection): Point => ({
   x: d.bbox.x + d.bbox.width / 2,
   y: d.bbox.y + d.bbox.height / 2,
 });
@@ -25,111 +47,277 @@ function median(values: number[]): number {
 }
 
 /**
- * Due indici uguali agli angoli opposti di una carta intera: lungo il lato
- * lungo distano 2,5–7 volte l'indice, lungo il lato corto 0,8–5 volte.
- * Due carte identiche del doppio mazzo affiancate in un tris sono invece vicine.
+ * Quanto la distanza tra due indici uguali somiglia a quella tra due angoli
+ * della stessa carta (orizzontale, verticale o in diagonale, anche ruotata
+ * di 90°). Infinito se non somiglia.
  */
-function oppositeCorners(a: Detection, b: Detection): boolean {
-  if (formatCard(a.card) !== formatCard(b.card)) return false;
+function cornerFit(a: Detection, b: Detection): number {
+  if (formatCard(a.card) !== formatCard(b.card)) return Infinity;
   const s = (size(a) + size(b)) / 2;
   const ca = center(a);
   const cb = center(b);
   const dx = Math.abs(ca.x - cb.x) / s;
   const dy = Math.abs(ca.y - cb.y) / s;
-  const long = (v: number) => v >= 2.5 && v <= 7;
-  const short = (v: number) => v >= 0.8 && v <= 5;
-  return (long(dy) && short(dx)) || (long(dx) && short(dy));
+  if (Math.hypot(dx, dy) < MIN_SAME_CARD) return Infinity;
+  const g =
+    a.card.rank === 'JOKER'
+      ? GEOMETRY.joker
+      : a.card.rank === '2'
+        ? GEOMETRY.pinella
+        : GEOMETRY.normal;
+  const expected: [number, number][] = [
+    [g.across, 0],
+    [0, g.down],
+    [g.across, g.down],
+  ];
+  const fits = [...expected, ...expected.map(([x, y]) => [y, x] as [number, number])].map(
+    ([ex, ey]) => Math.hypot(dx - ex, dy - ey),
+  );
+  const best = Math.min(...fits);
+  return best <= TOLERANCE * g.down ? best / g.down : Infinity;
 }
 
 export interface DedupeResult {
+  /** Una rilevazione per carta (la più sicura tra i suoi angoli). */
   cards: Detection[];
-  /** Coppie fuse [tenuto, scartato]: la UI le segnala come incerte. */
+  /** Coppie fuse [tenuto, scartato]: la UI le segnala. */
   merges: [Detection, Detection][];
+  /** Centro degli angoli di ogni carta, nello stesso ordine di `cards`. */
+  centers: Point[];
 }
 
+/**
+ * Riunisce gli angoli della stessa carta. Si fondono prima le coppie che
+ * somigliano di più alla geometria della carta; una fusione è rifiutata se
+ * metterebbe insieme due indici troppo vicini (carte uguali affiancate).
+ */
 export function dedupeCorners(detections: Detection[]): DedupeResult {
-  const sorted = [...detections].sort((a, b) => b.confidence - a.confidence);
-  const cards: Detection[] = [];
-  const merges: [Detection, Detection][] = [];
-  const used = new Set<Detection>();
-  for (const d of sorted) {
-    const twin = cards.find((k) => !used.has(k) && oppositeCorners(k, d));
-    if (twin) {
-      used.add(twin);
-      merges.push([twin, d]);
-    } else {
-      cards.push(d);
+  const n = detections.length;
+  const parent = detections.map((_, i) => i);
+  const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i]!)));
+  const members = new Map<number, number[]>(detections.map((_, i) => [i, [i]]));
+
+  const pairs: { i: number; j: number; fit: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const fit = cornerFit(detections[i]!, detections[j]!);
+      if (fit < Infinity) pairs.push({ i, j, fit });
     }
   }
-  return { cards, merges };
+  pairs.sort((a, b) => a.fit - b.fit);
+  for (const { i, j } of pairs) {
+    const ri = find(i);
+    const rj = find(j);
+    if (ri === rj) continue;
+    const merged = [...members.get(ri)!, ...members.get(rj)!];
+    if (merged.length > 4) continue;
+    // Tutti gli angoli della stessa carta sono ben distanziati tra loro.
+    const ok = merged.every((a, x) =>
+      merged.slice(x + 1).every((b) => {
+        const s = (size(detections[a]!) + size(detections[b]!)) / 2;
+        const ca = center(detections[a]!);
+        const cb = center(detections[b]!);
+        return Math.hypot(ca.x - cb.x, ca.y - cb.y) / s >= MIN_SAME_CARD;
+      }),
+    );
+    if (!ok) continue;
+    parent[ri] = rj;
+    members.set(rj, merged);
+    members.delete(ri);
+  }
+
+  const cards: Detection[] = [];
+  const centers: Point[] = [];
+  const merges: [Detection, Detection][] = [];
+  for (const group of members.values()) {
+    const dets = group.map((k) => detections[k]!).sort((a, b) => b.confidence - a.confidence);
+    const kept = dets[0]!;
+    cards.push(kept);
+    for (const other of dets.slice(1)) merges.push([kept, other]);
+    const cs = dets.map(center);
+    centers.push({
+      x: cs.reduce((s, c) => s + c.x, 0) / cs.length,
+      y: cs.reduce((s, c) => s + c.y, 0) / cs.length,
+    });
+  }
+  return { cards, merges, centers };
 }
 
-/** Raggruppamento a collegamento singolo: indici vicini meno di `eps` stanno nello stesso gruppo. */
-function clusters(cards: Detection[], eps: number): Detection[][] {
-  const parent = cards.map((_, i) => i);
+/** Raggruppamento a collegamento singolo sui centri delle carte. */
+function clusters(points: Point[], eps: number): number[][] {
+  const parent = points.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i]!)));
-  for (let i = 0; i < cards.length; i++) {
-    for (let j = i + 1; j < cards.length; j++) {
-      const a = center(cards[i]!);
-      const b = center(cards[j]!);
-      if (Math.hypot(a.x - b.x, a.y - b.y) <= eps) parent[find(i)] = find(j);
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      if (Math.hypot(points[i]!.x - points[j]!.x, points[i]!.y - points[j]!.y) <= eps) {
+        parent[find(i)] = find(j);
+      }
     }
   }
-  const groups = new Map<number, Detection[]>();
-  cards.forEach((c, i) => {
-    const root = find(i);
-    groups.set(root, [...(groups.get(root) ?? []), c]);
-  });
+  const groups = new Map<number, number[]>();
+  points.forEach((_, i) => groups.set(find(i), [...(groups.get(find(i)) ?? []), i]));
   return [...groups.values()];
 }
 
+/** Ordina le carte lungo la direzione principale del ventaglio. */
+function alongFan(indices: number[], points: Point[]): number[] {
+  if (indices.length < 2) return indices;
+  const ps = indices.map((i) => points[i]!);
+  const mx = ps.reduce((s, p) => s + p.x, 0) / ps.length;
+  const my = ps.reduce((s, p) => s + p.y, 0) / ps.length;
+  let sxx = 0;
+  let syy = 0;
+  let sxy = 0;
+  for (const p of ps) {
+    sxx += (p.x - mx) ** 2;
+    syy += (p.y - my) ** 2;
+    sxy += (p.x - mx) * (p.y - my);
+  }
+  const angle = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  const proj = (i: number) => {
+    const p = points[i]!;
+    return (p.x - mx) * ux + (p.y - my) * uy;
+  };
+  const sorted = [...indices].sort((a, b) => proj(a) - proj(b));
+  // Lettura naturale: da sinistra a destra, o dall'alto in basso.
+  const first = points[sorted[0]!]!;
+  const last = points[sorted[sorted.length - 1]!]!;
+  const reversed = Math.abs(ux) >= Math.abs(uy) ? first.x > last.x : first.y > last.y;
+  return reversed ? sorted.reverse() : sorted;
+}
+
+export interface MeldItem {
+  /** Il rilevamento da cui viene la carta; null per una carta dedotta che il modello non ha visto. */
+  detection: Detection | null;
+  card: Card;
+  /** Carta dedotta: alternative possibili, la prima è quella scelta. null se letta dal modello. */
+  options: Card[] | null;
+}
+
 export interface ProposedMeld {
-  cards: Detection[];
-  validation: Extract<MeldValidation, { valid: true }>;
+  items: MeldItem[];
+  /** Il gioco (con le deduzioni) è una scala o un tris valido. */
+  valid: boolean;
 }
 
 export interface TableProposal {
   melds: ProposedMeld[];
-  /** Carte che non formano un gioco valido: per la modalità semplice sono in mano. */
-  hand: Detection[];
   merges: [Detection, Detection][];
 }
 
-const readingOrder = (a: Detection, b: Detection) => {
-  const ca = center(a);
-  const cb = center(b);
-  return ca.x - cb.x || ca.y - cb.y;
-};
+type Options = Pick<RuleSet, 'allowSetOfTwos'>;
+
+function fromCompletion(dets: (Detection | null)[], completion: MeldCompletion): ProposedMeld {
+  const deduced = new Map(completion.deduced.map((d) => [d.index, d.options]));
+  return {
+    valid: true,
+    items: completion.cards.map((card, i) => ({
+      detection: dets[i] ?? null,
+      card,
+      options: deduced.get(i) ?? null,
+    })),
+  };
+}
 
 /**
- * Da una foto di squadra (giochi calati + carte in mano di fianco) propone
- * i giochi: gruppi vicini che formano una scala o un tris valido. Il resto
- * va tra le carte in mano.
+ * Prova a rendere valido un gioco letto male: prima scartando un indice
+ * incerto in più, poi sostituendo una carta incerta, poi aggiungendo una carta
+ * non vista, poi sostituendo qualunque carta, poi due.
  */
-export function groupTable(
-  detections: Detection[],
-  options: Pick<RuleSet, 'allowSetOfTwos'>,
-): TableProposal {
-  const { cards, merges } = dedupeCorners(detections);
-  if (cards.length === 0) return { melds: [], hand: [], merges };
-  const eps = 2 * median(cards.map(size));
+function repair(dets: Detection[], opts: Options): ProposedMeld {
+  const ordered = { ...opts, ordered: true };
+  const cards = dets.map((d) => d.card);
+  const exact = completeMeld(cards, ordered);
+  if (exact) return fromCompletion(dets, exact);
+
+  const byDoubt = dets.map((_, i) => i).sort((a, b) => dets[a]!.confidence - dets[b]!.confidence);
+  const replace = (positions: number[]) => {
+    const slots = cards.map((c, i) => (positions.includes(i) ? null : c));
+    const c = completeMeld(slots, ordered);
+    return c && fromCompletion(dets, c);
+  };
+  const insert = (at: number) => {
+    const slots: (Card | null)[] = [...cards.slice(0, at), null, ...cards.slice(at)];
+    const c = completeMeld(slots, ordered);
+    return c && fromCompletion([...dets.slice(0, at), null, ...dets.slice(at)], c);
+  };
+
+  // Un indice in più (falso rilevamento) si scarta, invece di trasformarlo in un'altra carta.
+  const drop = (at: number) => {
+    const rest = dets.filter((_, i) => i !== at);
+    const c =
+      rest.length >= 3
+        ? completeMeld(
+            rest.map((d) => d.card),
+            ordered,
+          )
+        : null;
+    return c && fromCompletion(rest, c);
+  };
+
+  const doubtful = byDoubt.filter((i) => dets[i]!.confidence < DOUBTFUL);
+  const attempts: (() => ProposedMeld | null)[] = [
+    ...doubtful.map((i) => () => drop(i)),
+    ...doubtful.map((i) => () => replace([i])),
+    ...Array.from({ length: dets.length + 1 }, (_, at) => () => insert(at)),
+    ...byDoubt.map((i) => () => replace([i])),
+  ];
+  const worst = byDoubt.slice(0, 4);
+  for (let a = 0; a < worst.length; a++) {
+    for (let b = a + 1; b < worst.length; b++) attempts.push(() => replace([worst[a]!, worst[b]!]));
+  }
+  for (const attempt of attempts) {
+    const fixed = attempt();
+    if (fixed) return fixed;
+  }
+  return { valid: false, items: dets.map((d) => ({ detection: d, card: d.card, options: null })) };
+}
+
+/** Un gruppo che non torna potrebbe essere due giochi troppo vicini. */
+function splitInTwo(dets: Detection[], opts: Options): ProposedMeld[] | null {
+  const ordered = { ...opts, ordered: true };
+  for (let cut = 3; cut <= dets.length - 3; cut++) {
+    const left = completeMeld(
+      dets.slice(0, cut).map((d) => d.card),
+      ordered,
+    );
+    const right = completeMeld(
+      dets.slice(cut).map((d) => d.card),
+      ordered,
+    );
+    if (left && right)
+      return [fromCompletion(dets.slice(0, cut), left), fromCompletion(dets.slice(cut), right)];
+  }
+  return null;
+}
+
+/**
+ * Dalla foto dei giochi di una squadra propone i giochi: ogni gruppo di carte
+ * vicine è un gioco. Se non torna, prova a dividerlo in due o a dedurre la
+ * carta letta male o non vista (CLAUDE.md §6.5).
+ */
+export function groupTable(detections: Detection[], options: Options): TableProposal {
+  const { cards, merges, centers } = dedupeCorners(detections);
+  if (cards.length === 0) return { melds: [], merges };
+  const eps = CLUSTER_EPS * median(cards.map(size));
+
+  const groups = clusters(centers, eps)
+    .map((g) => alongFan(g, centers))
+    .sort((a, b) => {
+      const ca = centers[a[0]!]!;
+      const cb = centers[b[0]!]!;
+      return Math.abs(ca.y - cb.y) > eps ? ca.y - cb.y : ca.x - cb.x;
+    });
 
   const melds: ProposedMeld[] = [];
-  const hand: Detection[] = [];
-  const groups = clusters(cards, eps)
-    .map((g) => g.sort(readingOrder))
-    .sort((a, b) => {
-      const ca = center(a[0]!);
-      const cb = center(b[0]!);
-      return ca.y - cb.y || ca.x - cb.x;
-    });
   for (const group of groups) {
-    const validation = validateMeld(
-      group.map((d) => d.card),
-      options,
-    );
-    if (validation.valid) melds.push({ cards: group, validation });
-    else hand.push(...group);
+    const dets = group.map((i) => cards[i]!);
+    const whole = repair(dets, options);
+    const noDeduction = whole.valid && whole.items.every((it) => it.options === null);
+    const split = noDeduction || dets.length < 6 ? null : splitInTwo(dets, options);
+    melds.push(...(split ?? [whole]));
   }
-  return { melds, hand, merges };
+  return { melds, merges };
 }

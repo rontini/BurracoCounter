@@ -139,17 +139,22 @@ export const it = {
   'burraco.sporco': 'sporco',
 
   'simple.photo': 'Foto di {name}',
-  'simple.photoHint':
-    'Fotografa i giochi calati con le carte rimaste in mano appoggiate di fianco.',
-  'simple.teamSummary': '{melds} giochi, {hand} carte in mano',
+  'simple.photoHint': 'Fotografa solo i giochi calati della squadra.',
+  'simple.teamSummary': '{melds} giochi',
   'simple.whoClosed': 'Chi ha chiuso?',
   'simple.nobody': 'Nessuno',
   'simple.pozzettoQuestion': 'Qualcuno non ha preso il pozzetto?',
   'simple.noPozzetto': '{name} non ha preso il pozzetto',
   'simple.switchToFull': "Passa all'inserimento completo",
   'simple.reviewHint':
-    'Le carte vicine che formano una scala o un tris sono giochi; le altre sono in mano. Tocca una carta per correggerla o spostarla.',
-  'simple.inHand': 'Carte in mano',
+    'Ogni gruppo di carte vicine è un gioco. Tocca una carta per correggerla, spostarla o toglierla.',
+  'simple.deducedHint':
+    '{n} carte lette male o non viste sono state dedotte dal gioco (bordo viola): toccale per scegliere tra le alternative.',
+  'simple.deducedShort': 'dedotta',
+  'simple.deducedChoose': 'Carta dedotta dal gioco: quale è?',
+  'simple.otherCard': "Oppure scegli un'altra carta:",
+  'simple.handPoints': 'Punti delle carte in mano (facoltativo)',
+  'simple.handPointsHelp': 'Contali tu e scrivi il totale: vengono sottratti.',
   'simple.addCard': 'Aggiungi carta',
   'simple.newMeld': 'Nuovo gioco',
   'simple.burraco': 'burraco {kind}',

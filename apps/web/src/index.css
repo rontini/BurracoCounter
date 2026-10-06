@@ -875,3 +875,11 @@ button.card-chip {
 .overlay .box.hand text {
   fill: #4da3ff;
 }
+
+.detection.deduced {
+  border: 2px dashed var(--wild);
+}
+
+.detection.deduced .conf {
+  color: var(--wild);
+}

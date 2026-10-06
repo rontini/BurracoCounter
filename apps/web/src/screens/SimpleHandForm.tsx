@@ -1,21 +1,21 @@
-import { scoreHand, type Card, type Match } from '@burracount/rules';
-import { useState } from 'react';
+import { scoreHand, type Match } from '@burracount/rules';
+import { useId, useState } from 'react';
 import { ModelStatusLine } from '../components/ModelStatusLine';
 import { PhotoInput } from '../components/PhotoInput';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
 import { SimpleReview } from '../components/SimpleReview';
 import { t } from '../i18n';
-import { cardShort } from '../lib/cardLabel';
 import { emptyDrafts, toHandResult, type MeldDraft, type TeamDraft } from '../lib/handDraft';
 import { href, navigate } from '../lib/router';
 import { saveHand } from '../lib/saveHand';
 import type { ModelStatus } from '../lib/useModelStatus';
 
-type TeamData = { melds: MeldDraft[]; hand: Card[] };
+type TeamData = { melds: MeldDraft[] };
 
 /**
- * Modalità semplice: una foto per squadra (giochi + carte in mano di fianco),
- * un tocco per chi ha chiuso, pozzetto preso salvo indicazione contraria.
+ * Modalità semplice: una foto dei giochi calati per squadra, i punti delle
+ * carte in mano scritti a mano (facoltativi), un tocco per chi ha chiuso,
+ * pozzetto preso salvo indicazione contraria.
  */
 export function SimpleHandForm({
   match,
@@ -31,14 +31,16 @@ export function SimpleHandForm({
   const [reviewing, setReviewing] = useState<{ team: number; photo: Blob } | null>(null);
   const [closedBy, setClosedBy] = useState<string | null>(null);
   const [noPozzetto, setNoPozzetto] = useState<Set<string>>(new Set());
+  const [handPoints, setHandPoints] = useState<Record<string, string>>({});
+  const pointsId = useId();
 
   const drafts: TeamDraft[] = emptyDrafts(match).map((d, i) => {
     const team = data[i];
     return {
       ...d,
       melds: team?.melds ?? [],
-      // In modalità semplice le carte in mano sono della squadra: le attribuisco al primo giocatore.
-      hands: d.hands.map((_, p) => (p === 0 ? (team?.hand ?? []) : [])),
+      hands: d.hands.map(() => []),
+      handPoints: Math.max(0, Number(handPoints[d.teamId]) || 0),
       closed: closedBy === d.teamId,
       pozzettoTaken: !noPozzetto.has(d.teamId),
     };
@@ -88,10 +90,7 @@ export function SimpleHandForm({
             <h2>{team.name}</h2>
             {d ? (
               <p data-testid={`simple-summary-${team.id}`}>
-                {t('simple.teamSummary', { melds: d.melds.length, hand: d.hand.length })}
-                {d.hand.length > 0 && (
-                  <span className="muted"> ({d.hand.map(cardShort).join(' ')})</span>
-                )}
+                {t('simple.teamSummary', { melds: d.melds.length })}
               </p>
             ) : (
               <p className="muted">{t('simple.photoHint')}</p>
@@ -100,6 +99,19 @@ export function SimpleHandForm({
               label={t('simple.photo', { name: team.name })}
               onPhoto={(photo) => setReviewing({ team: i, photo })}
             />
+            <div className="field inline">
+              <label htmlFor={`${pointsId}-${team.id}`}>{t('simple.handPoints')}</label>
+              <input
+                id={`${pointsId}-${team.id}`}
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                value={handPoints[team.id] ?? ''}
+                onChange={(e) => setHandPoints((h) => ({ ...h, [team.id]: e.target.value }))}
+              />
+            </div>
+            <p className="hint">{t('simple.handPointsHelp')}</p>
           </section>
         );
       })}

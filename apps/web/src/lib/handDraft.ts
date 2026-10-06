@@ -19,6 +19,8 @@ export interface TeamDraft {
   melds: MeldDraft[];
   /** Una lista per giocatore. */
   hands: Card[][];
+  /** Punti delle carte in mano contati a mano (modalità semplice), facoltativi. */
+  handPoints?: number;
   closed: boolean;
   pozzettoTaken: boolean;
 }
@@ -105,6 +107,7 @@ export function toHandResult(drafts: TeamDraft[], allowSetOfTwos: boolean): Hand
       .map((m) => meldStatus(m, allowSetOfTwos))
       .flatMap((s) => (s.state === 'ok' ? [s.meld] : [])),
     hands: d.hands,
+    ...(d.handPoints ? { handPoints: d.handPoints } : {}),
     closed: d.closed,
     pozzettoTaken: d.pozzettoTaken,
   }));

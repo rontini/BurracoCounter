@@ -1,5 +1,6 @@
-import { classifyBurraco, type Card, type RuleSet } from '@burracount/rules';
+import { classifyBurraco, formatCard, type RuleSet } from '@burracount/rules';
 import { groupTable, type RecognitionResult } from '@burracount/vision';
+import type { Card } from '@burracount/rules';
 import { useEffect, useState } from 'react';
 import { t } from '../i18n';
 import { cardName, cardShort, isRed } from '../lib/cardLabel';
@@ -17,7 +18,6 @@ import {
   toTeamData,
   type ReviewItem,
   type ReviewState,
-  type Where,
 } from '../lib/simpleReview';
 import { getRecognizer } from '../vision/workerRecognizer';
 import { CardPicker } from './CardPicker';
@@ -27,22 +27,24 @@ import { PhotoOverlay, type OverlayBox } from './PhotoOverlay';
 interface Props {
   photo: Blob;
   rules: RuleSet;
-  onConfirm: (data: { melds: MeldDraft[]; hand: Card[] }) => void;
+  onConfirm: (data: { melds: MeldDraft[] }) => void;
   onCancel: () => void;
 }
 
-type Selection = { where: Where; index: number } | { adding: Where | 'new' } | null;
+type Selection = { meld: number; index: number } | { adding: number | 'new' } | null;
 
 const isLow = (it: ReviewItem) => it.confidence !== null && it.confidence < LOW_CONFIDENCE;
+const optionLabel = (c: Card) => (c.rank === 'JOKER' ? t('picker.joker') : cardShort(c));
 
 /**
- * Revisione della modalità semplice: la foto di squadra diventa giochi
- * proposti più carte in mano; ogni carta si corregge, sposta o toglie.
+ * Revisione della modalità semplice: la foto dei giochi calati diventa una
+ * lista di giochi. Le carte lette male tra due carte di una scala (o in un
+ * tris) vengono dedotte e mostrate con le alternative.
  */
 export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
   const [result, setResult] = useState<RecognitionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [review, setReview] = useState<ReviewState>({ melds: [], hand: [] });
+  const [review, setReview] = useState<ReviewState>({ melds: [] });
   const [sel, setSel] = useState<Selection>(null);
   const allowTwos = rules.allowSetOfTwos;
 
@@ -64,11 +66,8 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
   const status = statuses(review, allowTwos);
   const data = toTeamData(review, allowTwos);
   const selected = sel && 'index' in sel ? sel : null;
-  const selectedItem = selected
-    ? selected.where === 'hand'
-      ? review.hand[selected.index]
-      : review.melds[selected.where]?.items[selected.index]
-    : undefined;
+  const selectedItem = selected ? review.melds[selected.meld]?.items[selected.index] : undefined;
+  const deducedCount = review.melds.flatMap((m) => m.items).filter((i) => i.options).length;
 
   function pick(card: Card) {
     if (!sel) return;
@@ -77,53 +76,31 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
       // Dopo la prima carta, le successive vanno nel gioco appena creato.
       if (sel.adding === 'new') setSel({ adding: review.melds.length });
     } else {
-      setReview((r) => replaceCard(r, sel.where, sel.index, card));
+      setReview((r) => replaceCard(r, sel.meld, sel.index, card));
       setSel(null);
     }
   }
 
-  const boxes: OverlayBox[] = [];
-  const pushBoxes = (items: ReviewItem[], where: Where) =>
-    items.forEach((it, i) => {
-      if (!it.bbox) return;
-      const isSel = selected?.where === where && selected.index === i;
-      boxes.push({
-        bbox: it.bbox,
-        label: `${where === 'hand' ? '✋' : where + 1}·${cardShort(it.card)}`,
-        tone: isSel ? 'selected' : isLow(it) ? 'low' : where === 'hand' ? 'hand' : 'ok',
-      });
-    });
-  review.melds.forEach((m, w) => pushBoxes(m.items, w));
-  pushBoxes(review.hand, 'hand');
-
-  const chips = (items: ReviewItem[], where: Where) => (
-    <div className="chips">
-      {items.map((it, i) => {
-        const isSel = selected?.where === where && selected.index === i;
-        return (
-          <button
-            key={i}
-            type="button"
-            className={`detection${isRed(it.card) ? ' red' : ''}${isLow(it) ? ' low' : ''}${isSel ? ' selected' : ''}`}
-            data-testid="simple-card"
-            data-card={cardShort(it.card)}
-            aria-pressed={isSel}
-            aria-label={cardName(it.card)}
-            onClick={() => setSel(isSel ? null : { where, index: i })}
-          >
-            <span className="card-face">{cardShort(it.card)}</span>
-            <span className="conf">
-              {it.merged ? '⧉ ' : ''}
-              {it.confidence !== null ? `${Math.round(it.confidence * 100)}%` : '✓'}
-            </span>
-          </button>
-        );
-      })}
-      {items.length === 0 && <span className="muted">{t('hand.noCards')}</span>}
-    </div>
+  const boxes: OverlayBox[] = review.melds.flatMap((m, w) =>
+    m.items.flatMap((it, i) =>
+      it.bbox
+        ? [
+            {
+              bbox: it.bbox,
+              label: `${w + 1}·${cardShort(it.card)}`,
+              tone:
+                selected?.meld === w && selected.index === i
+                  ? 'selected'
+                  : it.options || isLow(it)
+                    ? 'low'
+                    : 'ok',
+            } as OverlayBox,
+          ]
+        : [],
+    ),
   );
 
-  const addButton = (where: Where | 'new', label: string) => {
+  const addButton = (where: number | 'new', label: string) => {
     const active = sel !== null && 'adding' in sel && sel.adding === where;
     return (
       <>
@@ -165,6 +142,10 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
             })}
           </p>
           <p className="hint">{t('simple.reviewHint')}</p>
+          {deducedCount > 0 && (
+            <p className="hint">{t('simple.deducedHint', { n: deducedCount })}</p>
+          )}
+          {review.melds.length === 0 && <p>{t('photo.none')}</p>}
 
           {review.melds.map((m, w) => {
             const st = status[w]!;
@@ -183,7 +164,31 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
                     {burraco && ` · ${t('simple.burraco', { kind: t(`burraco.${burraco}`) })}`}
                   </strong>
                 </div>
-                {chips(m.items, w)}
+                <div className="chips">
+                  {m.items.map((it, i) => {
+                    const isSel = selected?.meld === w && selected.index === i;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`detection${isRed(it.card) ? ' red' : ''}${isLow(it) ? ' low' : ''}${it.options ? ' deduced' : ''}${isSel ? ' selected' : ''}`}
+                        data-testid="simple-card"
+                        data-card={cardShort(it.card)}
+                        data-deduced={it.options ? 'true' : undefined}
+                        aria-pressed={isSel}
+                        aria-label={`${cardName(it.card)}${it.options ? `, ${t('simple.deducedShort')}` : ''}`}
+                        onClick={() => setSel(isSel ? null : { meld: w, index: i })}
+                      >
+                        <span className="card-face">{cardShort(it.card)}</span>
+                        <span className="conf">
+                          {it.options
+                            ? t('simple.deducedShort')
+                            : `${it.merged ? '⧉ ' : ''}${it.confidence !== null ? `${Math.round(it.confidence * 100)}%` : '✓'}`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
                 {st.state === 'invalid' && (
                   <p className="error">{st.errors.map((e) => e.message).join(' ')}</p>
                 )}
@@ -209,26 +214,43 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
             );
           })}
 
-          <div className="player-hand" data-testid="simple-hand">
-            <h2>{t('simple.inHand')}</h2>
-            {chips(review.hand, 'hand')}
-            {addButton('hand', t('simple.addCard'))}
-          </div>
           {addButton('new', t('simple.newMeld'))}
 
           {selected && selectedItem && (
             <div className="correction">
-              <p>{t('photo.correct', { card: cardName(selectedItem.card) })}</p>
+              {selectedItem.options ? (
+                <>
+                  <p>{t('simple.deducedChoose')}</p>
+                  <div className="row" role="group" aria-label={t('simple.deducedChoose')}>
+                    {selectedItem.options.map((o) => (
+                      <button
+                        key={formatCard(o)}
+                        type="button"
+                        className={`btn ${formatCard(o) === formatCard(selectedItem.card) ? 'primary' : 'secondary'} small`}
+                        onClick={() => {
+                          setReview((r) => replaceCard(r, selected.meld, selected.index, o));
+                          setSel(null);
+                        }}
+                      >
+                        {optionLabel(o)}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="muted small">{t('simple.otherCard')}</p>
+                </>
+              ) : (
+                <p>{t('photo.correct', { card: cardName(selectedItem.card) })}</p>
+              )}
               <CardPicker onPick={pick} />
               <div className="row">
                 {review.melds.map((_, w) =>
-                  w === selected.where ? null : (
+                  w === selected.meld ? null : (
                     <button
                       key={w}
                       type="button"
                       className="btn secondary small"
                       onClick={() => {
-                        setReview((r) => moveCard(r, selected.where, selected.index, w));
+                        setReview((r) => moveCard(r, selected.meld, selected.index, w));
                         setSel(null);
                       }}
                     >
@@ -236,23 +258,11 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
                     </button>
                   ),
                 )}
-                {selected.where !== 'hand' && (
-                  <button
-                    type="button"
-                    className="btn secondary small"
-                    onClick={() => {
-                      setReview((r) => moveCard(r, selected.where, selected.index, 'hand'));
-                      setSel(null);
-                    }}
-                  >
-                    → {t('simple.inHand')}
-                  </button>
-                )}
                 <button
                   type="button"
                   className="btn secondary small"
                   onClick={() => {
-                    setReview((r) => moveCard(r, selected.where, selected.index, 'new'));
+                    setReview((r) => moveCard(r, selected.meld, selected.index, 'new'));
                     setSel(null);
                   }}
                 >
@@ -262,7 +272,7 @@ export function SimpleReview({ photo, rules, onConfirm, onCancel }: Props) {
                   type="button"
                   className="btn danger small"
                   onClick={() => {
-                    setReview((r) => removeCard(r, selected.where, selected.index));
+                    setReview((r) => removeCard(r, selected.meld, selected.index));
                     setSel(null);
                   }}
                 >

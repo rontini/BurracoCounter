@@ -51,6 +51,12 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 
 - **M3, primo modello Modiano** (2026-10-01, D22): 54/54 foto del mazzo riconosciute (il modello base ne riconosceva 11/52), attivo nell'app. Limiti: carte molto grandi o girate di 90°.
 
+- **Modalità semplice rivista** (2026-10-06, D23):
+  - solo giochi nella foto, punti in mano facoltativi;
+  - deduzione delle carte incerte o non viste;
+  - deduplica dei 4 angoli Modiano;
+  - divisione dei giochi troppo vicini.
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
@@ -62,17 +68,14 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
    - l'app funziona offline;
    - "wasm×N" con N > 1 nella revisione della foto;
    - tempo del riconoscimento;
-   - riconoscimento delle carte Modiano al tavolo.
+   - riconoscimento delle carte Modiano al tavolo, dopo la revisione D23.
 2. **Foto dei tavoli** (100–200, di cui almeno 50 per il golden set): si raccolgono giocando, una foto per squadra come in modalità semplice.
 3. **Fasce VP 14–6 … 19–1**: stimate, da correggere in Impostazioni appena note.
 4. **Accesso di rete dell'ambiente cloud a `burracocounter.rontinim.workers.dev`**: facoltativo. Serve solo se Claude deve provare il sito pubblicato direttamente.
 
 ## Prossimi passi
 
-1. **M4**:
-   - deduplica per carte con 4 indici (angoli adiacenti, non solo diagonali);
-   - doppioni lungo il confine dei riquadri;
-   - raggruppamento in giochi tarato sulle foto vere.
+1. **M4**: tarare deduplica, raggruppamento e deduzione sulle foto vere dei tavoli (servono foto: salvarle mentre si gioca).
 2. **M3, secondo addestramento**:
    - carte fino a circa 600 px di larghezza;
    - più rotazioni a 90°;

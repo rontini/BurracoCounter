@@ -220,3 +220,35 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
   - più carte a 90°;
   - foto reali dei tavoli per il fine-tuning e per il golden set (§7.4).
 - **App:** il modello base esce dall'app, così si scaricano 10 MB in meno. Le foto di prova E2E sono ora carte Modiano (`ml/eval/make_fixtures.py`). Il collage si fa con `pad` per non tagliare gli indici.
+
+## D23. Modalità semplice rivista dopo la prova al tavolo (2026-10-06)
+
+- **Contesto:** alla prova reale il riconoscimento ha sbagliato molte carte, e i giochi finivano tra le "carte in mano". Le cause:
+  - i 4 angoli delle carte Modiano non venivano riuniti (D20 considerava solo le diagonali), quindi comparivano doppioni e i giochi si spezzavano;
+  - un gioco con una sola carta sbagliata diventava "non valido" e finiva in mano.
+- **Decisioni del gruppo:**
+  - la foto contiene **solo i giochi calati**;
+  - i **punti delle carte in mano** si contano a mano e si inseriscono in un campo facoltativo (`TeamHandResult.handPoints`, sommato alla penalità delle carte in mano);
+  - l'app **deduce** le carte incerte dal gioco.
+- **Deduzione** (`completeMeld` in `packages/rules`):
+  - per una o due incognite prova tutte le 53 carte;
+  - tiene le combinazioni che formano un gioco valido, e per le scale rispetta l'ordine della foto (crescente o decrescente);
+  - propone prima la carta naturale (5♥ ? 7♥ → 6♥), poi jolly e pinella.
+
+  La scelta resta dell'utente, perché cambia punti e tipo di burraco.
+
+- **Riparazione di un gioco** (`packages/vision/src/table.ts`), in quest'ordine:
+  1. scarta un indice in più a bassa confidenza;
+  2. deduce una carta incerta;
+  3. inserisce una carta non vista;
+  4. deduce qualunque carta, poi due;
+  5. se due giochi sono troppo vicini, prova a dividerli.
+- **Deduplica:** la geometria degli angoli è misurata per gruppo:
+  - carte normali: 2,42 × 3,34;
+  - pinelle: 1,78 × 2,14;
+  - jolly: 5,92 × 9,69 (multipli dell'altezza dell'indice).
+
+  Si fondono prima le coppie più coerenti, e una fusione che unirebbe due indici vicini (carte uguali affiancate) viene rifiutata.
+
+- **Verifica:** su una foto composta con le carte Modiano (scala 5♥…J♥, tris Q♠ Q♠ Q♦ JK) i giochi escono esatti. Coprendo gli indici di due carte, entrambe vengono dedotte correttamente.
+- **Alternative scartate:** riconoscere le carte in mano dalla foto. Era poco affidabile, e il gruppo preferisce contarle.

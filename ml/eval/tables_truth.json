@@ -1,0 +1,189 @@
+{
+  "_readme": "Giochi veri delle foto in ml/photos/tables, letti a mano. Carte in notazione breve (JK = jolly), nell'ordine in cui stanno sul tavolo. 'hidden': carte coperte del tutto da altre (nessun indice visibile), con le identità possibili. 'ignore': zone della foto (frazioni di larghezza e altezza) con carte di un'altra squadra tagliate dal bordo. 'size': larghezza e altezza della foto dopo l'orientamento EXIF, in pixel.",
+  "IMG_4705": {
+    "size": [5712, 4284],
+    "melds": [
+      "JH QH KH",
+      "10S JS QS KS",
+      "3D 4D 5D",
+      "7D 8D 2D 10D JD QD",
+      "AD JK AS AS",
+      "7S 7C 7S",
+      "9C 2C JC QC",
+      "2S 3S 3C 3H 3H 3C 3D",
+      "4C 4C 2H"
+    ],
+    "notes": "Stessa partita di IMG_4706, luce diversa. Nel tris di assi il terzo asso è sbiadito: è un asso, il seme si intuisce appena."
+  },
+  "IMG_4706": {
+    "size": [5712, 4284],
+    "melds": [
+      "JH QH KH",
+      "10S JS QS KS",
+      "3D 4D 5D",
+      "7D 8D 2D 10D JD QD",
+      "AD JK AS AS",
+      "7S 7C 7S",
+      "9C 2C JC QC",
+      "2S 3S 3C 3H 3H 3C 3D",
+      "4C 4C 2H"
+    ]
+  },
+  "IMG_4707": {
+    "size": [4284, 5712],
+    "melds": [
+      "8C 2S 6C 5C",
+      "KH QH JH",
+      "AD KD QD JD JK 8D",
+      "9H 9S 9S 9D 9H",
+      "AC AC 2C",
+      "8C 8S 8S 8H",
+      "5S 5C 5D 5H"
+    ],
+    "hidden": [
+      {
+        "meld": 2,
+        "options": ["9D", "10D"]
+      },
+      {
+        "meld": 6,
+        "options": ["5C", "5S"]
+      }
+    ],
+    "notes": "Stessa partita di IMG_4708 (file invece di colonne). Le carte coperte si vedono solo in IMG_4708."
+  },
+  "IMG_4708": {
+    "size": [5712, 4284],
+    "melds": [
+      "5C 6C 2S 8C",
+      "JH QH KH",
+      "8D JK JD QD KD AD",
+      "9H 9D 9S 9S 9H",
+      "2C AC AC",
+      "8H 8S 8S 8C",
+      "5H 5D 5C 5S"
+    ],
+    "hidden": [
+      {
+        "meld": 2,
+        "options": ["9D", "10D"]
+      },
+      {
+        "meld": 6,
+        "options": ["5C", "5S"]
+      }
+    ]
+  },
+  "IMG_4709": {
+    "size": [4284, 5712],
+    "melds": ["JS JK KS", "3C 3S 3D 3D", "5H 6H 7H 8H 2S 10H", "4C 5C 6C 7C 8C 9C"],
+    "notes": "Una carta coperta (dorso) accanto alla scala di fiori: non fa parte dei giochi. Squadra avversaria di IMG_4710/4711."
+  },
+  "IMG_4710": {
+    "size": [4284, 5712],
+    "melds": [
+      "8S JK 9S",
+      "2C 5C 6C 7C 8C",
+      "9D 10D JK QD KD",
+      "5S 6S 7S 8S 9S 10S",
+      "AC AD AD AS",
+      "9H 2H JH QH KH",
+      "4S 4C 4D",
+      "2D 10S 9S"
+    ],
+    "notes": "Foto capovolta. Una carta coperta (dorso) accanto alla scala di picche. Stessa partita di IMG_4711."
+  },
+  "IMG_4711": {
+    "size": [4284, 5712],
+    "melds": [
+      "8S JK 9S",
+      "2C 5C 6C 7C 8C",
+      "9D 10D JK QD KD",
+      "5S 6S 7S 8S 9S 10S",
+      "AC AD AD AS",
+      "9H 2H JH QH KH",
+      "4S 4C 4D",
+      "2D 10S 9S"
+    ],
+    "ignore": [[0.94, 0.55, 1.0, 1.0]],
+    "notes": "Sul bordo destro si vede tagliato un gioco della squadra avversaria (J♠ JK K♠ di IMG_4709)."
+  },
+  "IMG_4712": {
+    "size": [4284, 5712],
+    "melds": ["JD 10D 9D", "10C 2C 8C", "3H 3D 3S 3H 3C", "6S 6H 6H", "8D 8S 8H"]
+  },
+  "IMG_4713": {
+    "size": [5712, 4284],
+    "melds": [
+      "2S QC KC",
+      "2C KH AH",
+      "9S 10S JS JK KS AS",
+      "2H 8C 9C 10C JC QC KC AC",
+      "AD AS AC AH",
+      "6D 6C"
+    ],
+    "hidden": [
+      {
+        "meld": 5,
+        "options": ["6S", "6C"]
+      }
+    ],
+    "notes": "La scala di fiori è un burraco semipulito: 7 carte naturali con la pinella in fondo."
+  },
+  "IMG_4714": {
+    "size": [5712, 4284],
+    "melds": [
+      "6D 5D 4D 3D",
+      "7C 6C JK 4C",
+      "AH KH QH JH 10H 9H JK 7H 6H",
+      "JK JS 10S 9S",
+      "AS AD AD",
+      "KH KS 2H"
+    ]
+  },
+  "IMG_4715": {
+    "size": [5712, 4284],
+    "melds": [
+      "4D 4S 2H",
+      "6C 5C 4C 3C JK",
+      "7H 6H 5H 4H",
+      "QD JD 10D 9D 8D 7D 2S",
+      "8S 7S 6S 5S",
+      "JS 10S 2S 8S 7S 6S 5S",
+      "AC KC QC JC 10C 9C",
+      "KS QS 2C"
+    ]
+  },
+  "IMG_4716": {
+    "size": [4284, 5712],
+    "melds": [
+      "4H 5H 6H 2D 8H 9H",
+      "QC QD JK",
+      "8S 2S 10S JS QS KS AS",
+      "3C 4C 5C 6C",
+      "4D 5D 2C 7D 8D",
+      "JK KH AH",
+      "AC AC AH"
+    ],
+    "hidden": [
+      {
+        "meld": 0,
+        "options": ["3H"]
+      }
+    ],
+    "notes": "Sotto il 4♥ c'è una carta coperta con un indice rosso: probabilmente il 3♥ (la scala sarebbe un burraco)."
+  },
+  "IMG_4717": {
+    "size": [5712, 4284],
+    "melds": [
+      "10D JD 2H KD AD",
+      "7C 2C 9C 10C JC",
+      "3D 4D JK 6D 7D",
+      "9S 9D 9D JK",
+      "5S 6S 2H 8S",
+      "4H 5H 6H"
+    ],
+    "ignore": [[0.0, 0.97, 0.3, 1.0]],
+    "notes": "In basso a sinistra si vedono tagliate carte della squadra avversaria."
+  }
+}

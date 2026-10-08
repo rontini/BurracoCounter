@@ -24,6 +24,19 @@ function fan(labels: (string | [string, number])[], x0: number, y: number, step 
   });
 }
 
+/**
+ * Colonna come sul tavolo: ogni carta copre la parte bassa della precedente e
+ * se ne vedono gli indici in alto a sinistra e a destra; l'ultima è intera.
+ */
+function column(labels: string[], x: number, y0: number, step = 50): Detection[] {
+  return labels.flatMap((label, i) => {
+    const y = y0 + i * step;
+    const top = [det(label, x, y), det(label, x + ACROSS, y)];
+    const last = i === labels.length - 1;
+    return last ? [...top, det(label, x, y + DOWN), det(label, x + ACROSS, y + DOWN)] : top;
+  });
+}
+
 const show = (m: ProposedMeld) =>
   m.items.map((it) => `${formatCard(it.card)}${it.options ? '?' : ''}`).join(' ');
 
@@ -139,6 +152,58 @@ describe('groupTable', () => {
   it('reports the corners merged into one card', () => {
     const result = groupTable(fan(['3H', '4H', '5H'], 100, 100), opts);
     expect(result.merges).toHaveLength(3);
+  });
+
+  it('keeps side by side columns apart, even when they nearly touch', () => {
+    const result = groupTable(
+      [
+        ...column(['3D', '4D', '5D'], 100, 100),
+        ...column(['JS', 'QS', 'KS'], 100 + ACROSS + 30, 100),
+      ],
+      opts,
+    );
+    expect(result.melds.map(show)).toEqual(['3D 4D 5D', 'JS QS KS']);
+  });
+
+  it('keeps a column together when the cards are not perfectly aligned', () => {
+    const dets = column(['7S', '7C', '7S'], 100, 100).map((d, i) => ({
+      ...d,
+      bbox: { ...d.bbox, x: d.bbox.x + (i % 4 < 2 ? 0 : 1) * 25 },
+    }));
+    expect(groupTable(dets, opts).melds.map(show)).toEqual(['7S 7C 7S']);
+  });
+
+  it('does not merge two equal cards of the same meld into one (double deck)', () => {
+    // Tris di 3 con due 3♣: tra l'indice in basso del primo e quelli in alto del
+    // secondo si vedono gli indici dei 3♥, quindi non sono la stessa carta.
+    const result = groupTable(column(['3C', '3H', '3H', '3C'], 100, 100, 45), opts);
+    expect(result.melds.map(show)).toEqual(['3C 3H 3H 3C']);
+  });
+
+  it('ignores the star of a pinella read on its own and tiny false readings', () => {
+    const star = { ...det('JK', 100, 105), bbox: { x: 94, y: 105, width: 12, height: 12 } };
+    const speck = { ...det('9S', 400, 400, 0.9), bbox: { x: 398, y: 398, width: 4, height: 6 } };
+    const result = groupTable([...column(['2C', '5C', '6C'], 100, 100), star, speck], opts);
+    expect(result.melds.map(show)).toEqual(['2C 5C 6C']);
+  });
+
+  it('joins the corners of a 6 whose upside-down corners were read as 9', () => {
+    const dets = [
+      det('6D', 100, 100),
+      det('6D', 100 + ACROSS, 100),
+      det('9D', 100, 100 + DOWN, 0.8),
+      det('9D', 100 + ACROSS, 100 + DOWN, 0.8),
+    ];
+    const { cards } = dedupeCorners(dets);
+    expect(cards.map((c) => formatCard(c.card))).toEqual(['6D']);
+  });
+
+  it('drops a lone card read with low confidence', () => {
+    const result = groupTable(
+      [...column(['5H', '6H', '7H'], 100, 100), det('QD', 900, 900, 0.3)],
+      opts,
+    );
+    expect(result.melds.map(show)).toEqual(['5H 6H 7H']);
   });
 
   it('returns nothing for an empty photo', () => {

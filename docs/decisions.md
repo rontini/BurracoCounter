@@ -252,3 +252,37 @@ Il motore non inventa regole: dove la specifica non è esplicita ho scelto un co
 
 - **Verifica:** su una foto composta con le carte Modiano (scala 5♥…J♥, tris Q♠ Q♠ Q♦ JK) i giochi escono esatti. Coprendo gli indici di due carte, entrambe vengono dedotte correttamente.
 - **Alternative scartate:** riconoscere le carte in mano dalla foto. Era poco affidabile, e il gruppo preferisce contarle.
+
+## D24. Raggruppamento misurato sulle 13 foto vere (2026-10-08)
+
+- **Metro di misura:** i giochi veri delle 13 foto in `ml/photos/tables/`, letti a mano carta per carta, sono in `ml/eval/tables_truth.json`.
+  - Il file segna anche le carte coperte del tutto, con le identità possibili, e le zone con carte dell'altra squadra tagliate dal bordo.
+  - I rilevamenti del modello attuale sono salvati in `ml/eval/tables_detections.json` (si rigenerano con `ml/eval/predict_photo.py` quando cambia il modello).
+  - `packages/vision/src/tables.eval.test.ts` misura carte trovate, carte in più, giochi esatti e foto con punteggio esatto. Gira in CI con soglie al livello raggiunto, quindi un peggioramento la ferma.
+- **Partenza (D23):** carte vere trovate 377/385, ma 163 carte in più (angoli non riuniti), giochi esatti 10/90, foto con punteggio esatto 0/13. Il modello legge bene gli indici; sbagliava quasi tutto il codice dopo.
+- **Cosa mostrano le foto:**
+  - i giochi sono colonne o file di carte sovrapposte, nei due sensi (lungo il lato lungo o lungo il lato corto), anche nella stessa foto;
+  - colonne e file vicine si toccano quasi.
+
+  Il vecchio collegamento per distanza le univa (un gioco da 26 carte).
+
+- **Decisioni** (`packages/vision/src/table.ts`):
+  1. **Pulizia prima della deduplica:**
+     - box troppo sottili o minuscoli (puntini sulla scritta MODIANO letti come jolly);
+     - box nello stesso punto o contenuti in uno più sicuro (la stellina della pinella letta a parte, come pinella o come jolly).
+  2. **Direzione del ventaglio:** una carta coperta mostra due angoli dello stesso bordo, e il gioco prosegue perpendicolare a quel bordo. Una carta si lega alla successiva solo se questa sta poco più avanti in quella direzione e non è spostata di lato più di 1,2 altezze d'indice. Così due colonne che si toccano restano separate.
+  3. **Carta isolata vicina a un gioco:** di solito è una matta messa di traverso. Si unisce al gioco se questo resta valido; se è letta con confidenza sotto 0,5 si scarta come falso rilevamento.
+  4. **Deduplica:**
+     - ogni coppia di angoli della stessa carta deve avere la geometria giusta;
+     - tra due angoli della stessa carta non può esserci l'indice di un'altra carta confermata. Così non si fondono due carte uguali dello stesso gioco (due 3♣ in un tris).
+  5. **Pinella:** l'indice a volte è letto senza la stellina, quindi vale anche la geometria normale.
+  6. **6 e 9 dello stesso seme:** gli angoli capovolti in basso di un 6 vengono letti 9. Due gruppi letti 6 e 9 si uniscono se insieme formano una sola carta (al massimo 4 angoli); vince la lettura con più confidenza.
+- **Risultato:** carte 377/385 (98%) con 16 in più, giochi esatti 76/90 (84%), foto con punteggio esatto 3/13.
+- **Errori rimasti:**
+  - sono quasi tutti di lettura del modello: 6/9 su carte capovolte, seme sbagliato su un angolo (3♣ letto 3♠), assi sbiaditi, re letto come jolly;
+  - un errore di un gioco cambia il punteggio della foto, quindi il punteggio esatto resta basso finché il modello non migliora;
+  - le carte coperte del tutto (4 foto su 13) non si possono contare dalla foto; quando il gioco altrimenti non torna, la deduzione le propone.
+- **Alternative scartate:**
+  - collegare solo lungo il lato lungo delle carte: in una foto le file di carte dritte sono sovrapposte di lato;
+  - fondere angoli di semi diversi (3♣/3♠) quando insieme formano una carta: confonde due carte vere di un tris disposte a distanza di una carta;
+  - trattare sempre 6 e 9 come la stessa carta: rompe le scale che contengono entrambi.

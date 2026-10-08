@@ -57,6 +57,11 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
   - deduplica dei 4 angoli Modiano;
   - divisione dei giochi troppo vicini.
 
+- **Foto vere dei tavoli** (2026-10-08, D24):
+  - 13 foto caricate in `ml/photos/tables/`; i giochi veri sono letti a mano in `ml/eval/tables_truth.json`;
+  - raggruppamento riscritto e misurato in CI: giochi esatti da 10/90 a 76/90, carte doppie da 163 a 16, carte vere trovate 377/385;
+  - foto con punteggio esatto 3/13: gli errori rimasti sono quasi tutti di lettura del modello.
+
 ## In corso
 
 - Test sui telefoni reali [UMANO], con la checklist in `docs/deploy.md`.
@@ -75,9 +80,9 @@ Aggiornato a fine sessione; va riletto all'inizio della successiva.
 
 ## Prossimi passi
 
-1. **M4**: tarare deduplica, raggruppamento e deduzione sulle foto vere dei tavoli (servono foto: salvarle mentre si gioca).
-2. **M3, secondo addestramento**:
-   - carte fino a circa 600 px di larghezza;
-   - più rotazioni a 90°;
-   - fine-tuning sulle foto dei tavoli.
-3. **Golden set** con le foto dei tavoli: misurare la percentuale di carte corrette (≥97%) e di foto con punteggio esatto.
+1. **M3, secondo addestramento** (gli errori rimasti sono del modello, D24):
+   - 6 e 9 capovolti, seme sbagliato su un angolo, assi sbiaditi, falsi jolly sulla scritta MODIANO e sulla stellina delle pinelle;
+   - generatore: colonne e file fitte come sul tavolo, luce calda e riflessi, carte fino a circa 600 px, più rotazioni a 90° e 180°;
+   - fine-tuning sulle 13 foto dei tavoli, pre-annotate dal modello e corrette.
+2. **Golden set**: le prossime 50 foto restano fuori dall'addestramento; su quelle si misurano carte corrette (≥97%) e foto con punteggio esatto.
+3. **Uso delle foto**: le 13 attuali servono a tarare il codice e al fine-tuning, quindi i loro numeri sono ottimisti.

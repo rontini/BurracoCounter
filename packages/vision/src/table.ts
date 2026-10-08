@@ -27,8 +27,14 @@ const GEOMETRY = {
 const TOLERANCE = 0.3;
 /** Due indici più vicini di così sono carte diverse (ventaglio). */
 const MIN_SAME_CARD = 1.5;
-/** Raggio del raggruppamento: indici più vicini stanno nello stesso gioco. */
-const CLUSTER_EPS = 2.5;
+/**
+ * Raggruppamento: due carte sono nello stesso gioco se stanno nella stessa
+ * colonna (scostamento laterale piccolo, una sotto l'altra) o nella stessa
+ * fila (una accanto all'altra). I giochi veri sono colonne o file di carte
+ * sovrapposte; giochi affiancati distano almeno una larghezza di carta.
+ */
+const SAME_LINE = 1.4;
+const NEXT_IN_LINE = 2.6;
 /** Sotto questa confidenza una carta è la prima candidata alla deduzione. */
 const DOUBTFUL = 0.6;
 
@@ -143,15 +149,17 @@ export function dedupeCorners(detections: Detection[]): DedupeResult {
   return { cards, merges, centers };
 }
 
-/** Raggruppamento a collegamento singolo sui centri delle carte. */
-function clusters(points: Point[], eps: number): number[][] {
+/** Collegamento singolo lungo colonne e file (vedi SAME_LINE e NEXT_IN_LINE). */
+function clusters(points: Point[], unit: number): number[][] {
   const parent = points.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i]!)));
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
-      if (Math.hypot(points[i]!.x - points[j]!.x, points[i]!.y - points[j]!.y) <= eps) {
-        parent[find(i)] = find(j);
-      }
+      const dx = Math.abs(points[i]!.x - points[j]!.x) / unit;
+      const dy = Math.abs(points[i]!.y - points[j]!.y) / unit;
+      const column = dx <= SAME_LINE && dy <= NEXT_IN_LINE;
+      const row = dy <= SAME_LINE && dx <= NEXT_IN_LINE;
+      if (column || row) parent[find(i)] = find(j);
     }
   }
   const groups = new Map<number, number[]>();
@@ -301,9 +309,10 @@ function splitInTwo(dets: Detection[], opts: Options): ProposedMeld[] | null {
 export function groupTable(detections: Detection[], options: Options): TableProposal {
   const { cards, merges, centers } = dedupeCorners(detections);
   if (cards.length === 0) return { melds: [], merges };
-  const eps = CLUSTER_EPS * median(cards.map(size));
+  const unit = median(cards.map(size));
+  const eps = NEXT_IN_LINE * unit;
 
-  const groups = clusters(centers, eps)
+  const groups = clusters(centers, unit)
     .map((g) => alongFan(g, centers))
     .sort((a, b) => {
       const ca = centers[a[0]!]!;
